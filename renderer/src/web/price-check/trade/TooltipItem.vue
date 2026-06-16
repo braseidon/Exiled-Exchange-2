@@ -133,6 +133,7 @@ export default defineComponent({
           ...(item.explicitMods ?? []),
           ...(item.desecratedMods ?? []),
           ...(item.mutatedMods ?? []),
+          ...(item.veiledMods ?? []),
         ],
       },
       { key: "pseudoMods", content: item.pseudoMods },

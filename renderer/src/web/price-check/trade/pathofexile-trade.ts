@@ -444,6 +444,7 @@ interface FetchResult {
     enchantMods?: string[];
     runeMods?: string[];
     extended?: FetchResultExtended;
+    veiledMods?: string[];
     pseudoMods?: string[];
     desecratedMods?: string[];
     fracturedMods?: string[];
@@ -514,6 +515,7 @@ export interface DisplayItem {
   mutatedMods?: DisplayItemLine[];
   desecratedMods?: DisplayItemLine[];
   pseudoMods?: DisplayItemLine[];
+  veiledMods?: DisplayItemLine[];
   extended?: Array<{ text: string; value: number }>;
   itemTags?: DisplayItemLine[];
   sockets: Array<{ group: number; type: string; item?: string }>;
@@ -1511,6 +1513,14 @@ function parseFetchResult(result: FetchResult): PricingResult["displayItem"] {
     itemProps: buildItemProps(result.item.ilvl, result.item.requirements),
     grantSkill: buildGrantSkillBlock(result.item.grantedSkills),
     ...parseMods(result),
+    veiledMods: result.item.veiledMods?.map((vm) => {
+      return {
+        text: vm.startsWith("Prefix")
+          ? "Unrevealed Prefix"
+          : "Unrevealed Suffix",
+        color: TradeNumberColors.Desecrated,
+      };
+    }),
     sockets: result.item.sockets,
     itemTags,
     icon: {
