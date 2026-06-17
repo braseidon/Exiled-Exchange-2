@@ -4,30 +4,30 @@
     {
       "id": 1,
       "subject": "Task 1: Parser fallback + isSimpleCopy flag (+ regression suite)",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** parseModifiers resolves simple-format mod sections via a guarded, rollback-safe fallback, sets item.isSimpleCopy, and a test suite proves simple == extended trade IDs with no regression.\n\n**Files:**\n- Modify: renderer/src/parser/ParsedItem.ts (add isSimpleCopy?: boolean)\n- Modify: renderer/src/parser/Parser.ts (add isSimpleCopyFormat + parseSimpleModLines; fallback at the parseModifiers bail ~1254)\n- Create: renderer/specs/web/simple-copy.test.ts\n- Delete: renderer/specs/web/chat-simple-copy.experiment.test.ts\n\n**Acceptance Criteria:**\n- simple ring == extended trade IDs/values, isSimpleCopy true\n- extended ring unchanged, flag off\n- charm flag mods resolve, no flavor pollution\n- helmet per-line types + coalesced rolls + armourEV 692\n- extended charm gate holds\n\n**Verify:** cd renderer && npx vitest run specs/web/simple-copy.test.ts && npm run check-types\n\n```json:metadata\n{\"files\": [\"renderer/src/parser/ParsedItem.ts\", \"renderer/src/parser/Parser.ts\", \"renderer/specs/web/simple-copy.test.ts\"], \"verifyCommand\": \"cd renderer && npx vitest run specs/web/simple-copy.test.ts && npm run check-types\", \"acceptanceCriteria\": [\"simple ring == extended trade IDs/values, isSimpleCopy true\", \"extended ring unchanged, flag off\", \"charm flag mods resolve, no flavor pollution\", \"helmet per-line types + coalesced rolls + armourEV 692\", \"extended charm gate holds\"]}\n```"
     },
     {
       "id": 2,
       "subject": "Task 2: Filter seeding — keep fill % for simple copies",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [1],
       "description": "**Goal:** For item.isSimpleCopy, stat-filter fill applies searchStatRange % to the rolled value instead of collapsing to exact value (skip tier-floor clamp).\n\n**Files:**\n- Modify: renderer/src/web/price-check/filters/create-stat-filters.ts (clamp sites ~331-332 and ~534-535)\n- Modify: renderer/specs/web/simple-copy.test.ts (add seeding test)\n\n**Acceptance Criteria:**\n- simple ring # to maximum Life (90) at fill 20% -> default.min === 72\n- with isSimpleCopy false, default.min === 90\n\n**Verify:** cd renderer && npx vitest run specs/web/simple-copy.test.ts\n\n```json:metadata\n{\"files\": [\"renderer/src/web/price-check/filters/create-stat-filters.ts\", \"renderer/specs/web/simple-copy.test.ts\"], \"verifyCommand\": \"cd renderer && npx vitest run specs/web/simple-copy.test.ts\", \"acceptanceCriteria\": [\"simple fill: default.min===72 (90-20%)\", \"non-simple clamped: default.min===90\"]}\n```"
     },
     {
       "id": 3,
       "subject": "Task 3: Limited-data badge on price-check widget",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [1],
       "description": "**Goal:** When item.isSimpleCopy, show a small notice above the filters explaining limited data.\n\n**Files:**\n- Modify: renderer/src/web/price-check/CheckedItem.vue (template; v-if=\"item.isSimpleCopy\" banner after <filter-name>, t() with English text via fallbackFormat)\n\n**Acceptance Criteria:**\n- isSimpleCopy===true -> banner renders\n- no banner for extended items\n\n**Verify:** cd renderer && npm run check-types && npm run lint; manual overlay check\n\n```json:metadata\n{\"files\": [\"renderer/src/web/price-check/CheckedItem.vue\"], \"verifyCommand\": \"cd renderer && npm run check-types && npm run lint\", \"acceptanceCriteria\": [\"banner shows when isSimpleCopy\", \"no banner for extended items\"]}\n```"
     },
     {
       "id": 4,
       "subject": "Task 4: Full quality gates",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [1, 2, 3],
       "description": "**Goal:** Confirm the whole renderer suite + gates are green.\n\n**Files:** none (verification only)\n\n**Acceptance Criteria:**\n- check-types, lint, test all pass\n- format leaves changed files clean\n\n**Verify:** cd renderer && npm run check-types && npm run lint && npm run format && npm test\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"cd renderer && npm run check-types && npm run lint && npm test\", \"acceptanceCriteria\": [\"check-types passes\", \"lint passes\", \"test passes\", \"format clean\"]}\n```"
     }
   ],
-  "lastUpdated": "2026-06-17"
+  "lastUpdated": "2026-06-17T13:19:00Z"
 }
