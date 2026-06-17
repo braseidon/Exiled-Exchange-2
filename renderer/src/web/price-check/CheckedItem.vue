@@ -1,6 +1,16 @@
 <template>
   <div v-if="noUniqueSelection" class="p-4 layout-column min-h-0">
     <filter-name :filters="itemFilters" :item="item" />
+    <div
+      v-if="item.isSimpleCopy"
+      class="mb-2 px-2 py-1 rounded bg-orange-700 text-xs"
+    >
+      {{
+        t(
+          "Limited data — copied without advanced descriptions. Tier/range filters unavailable; hover the real item for full data.",
+        )
+      }}
+    </div>
     <!-- <price-prediction v-if="showPredictedPrice" class="mb-4" :item="item" /> -->
     <!-- <price-trend v-else :item="item" :filters="itemFilters" /> -->
     <price-trend :item="item" :filters="itemFilters" />
