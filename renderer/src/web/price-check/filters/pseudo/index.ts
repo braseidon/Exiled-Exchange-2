@@ -362,6 +362,7 @@ const PSEUDO_RULES: PseudoRule[] = [
       { ref: stat("Adds an Otherworldy Breach to a Map \n# use remaining") },
       { ref: stat("Empowers the Map Boss of a Map \n# use remaining") },
       { ref: stat("Adds Abysses to a Map \n# use remaining") },
+      { ref: stat("Adds Vaal Beacons to a Map \n# use remaining") },
     ],
   },
 ];
