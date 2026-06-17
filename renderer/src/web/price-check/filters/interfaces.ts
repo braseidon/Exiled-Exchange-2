@@ -107,7 +107,7 @@ export interface ItemFilters {
 }
 
 export interface FilterNumeric {
-  value: number;
+  value: number | "";
   max?: number | undefined;
   disabled: boolean;
 }

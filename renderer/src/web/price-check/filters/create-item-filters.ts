@@ -307,20 +307,16 @@ export function createFilters(
     };
   }
 
-  if (item.requires && item.rarity === ItemRarity.Rare && !opts.exact) {
-    if (
-      item.requires.level &&
-      item.requires.level <= 75 &&
-      item.itemLevel &&
-      item.itemLevel <= 75
-    ) {
-      filters.requires = {
-        level: {
-          value: item.requires.level,
-          disabled: true,
-        },
-      };
-    }
+  // Max required-level filter: available on any item that has a level
+  // requirement. Blank + disabled by default (no value pre-filled); it only
+  // constrains the search when the user types a max and enables it.
+  if (item.requires?.level) {
+    filters.requires = {
+      level: {
+        value: "",
+        disabled: true,
+      },
+    };
   }
 
   const forAdornedJewel =

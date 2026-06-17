@@ -159,7 +159,9 @@ export function createTradeRequest(
         option: filters.trade.listingType,
       },
       minimum:
-        filters.stackSize && !filters.stackSize.disabled
+        filters.stackSize &&
+        !filters.stackSize.disabled &&
+        typeof filters.stackSize.value === "number"
           ? filters.stackSize.value
           : undefined,
       // fulfillable: null

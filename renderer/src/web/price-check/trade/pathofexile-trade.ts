@@ -657,7 +657,8 @@ export function createTradeRequest(
   if (
     filters.requires &&
     filters.requires.level &&
-    !filters.requires.level.disabled
+    !filters.requires.level.disabled &&
+    typeof filters.requires.level.value === "number"
   ) {
     propSet(
       query.filters,
@@ -752,7 +753,8 @@ export function createTradeRequest(
 
   if (
     filters.awardedAscendancyPoints &&
-    !filters.awardedAscendancyPoints.disabled
+    !filters.awardedAscendancyPoints.disabled &&
+    typeof filters.awardedAscendancyPoints.value === "number"
   ) {
     propSet(
       query.filters,
