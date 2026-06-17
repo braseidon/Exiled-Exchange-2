@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
 import { init } from "@/assets/data";
 import { parseClipboard } from "@/parser";
+import { calculatedStatToFilter } from "@/web/price-check/filters/create-stat-filters";
 
 const RING_SIMPLE = `Item Class: Rings
 Rarity: Rare
@@ -162,10 +163,9 @@ describe("simple-format (chat-linked) parsing", () => {
       value: 90,
       tradeIds: ["explicit.stat_3299347043"],
     });
-    expect(find(stats, "#% increased Rarity of Items found")?.tradeIds).toEqual([
-      "explicit.stat_3917489142",
-      "explicit.stat_2306002879",
-    ]);
+    expect(find(stats, "#% increased Rarity of Items found")?.tradeIds).toEqual(
+      ["explicit.stat_3917489142", "explicit.stat_2306002879"],
+    );
     expect(find(stats, "# to Evasion Rating")?.tradeIds).toEqual([
       "explicit.stat_2144192055",
       "explicit.stat_53045048",
@@ -190,9 +190,9 @@ describe("simple-format (chat-linked) parsing", () => {
       type: "implicit",
       tradeIds: ["implicit.stat_1691862754"],
     });
-    expect(find(stats, "Energy Shield Recharge starts on use")?.tradeIds).toEqual(
-      ["explicit.stat_1056492907"],
-    );
+    expect(
+      find(stats, "Energy Shield Recharge starts on use")?.tradeIds,
+    ).toEqual(["explicit.stat_1056492907"]);
     expect(
       find(stats, "#% Chance to gain a Charge when you kill an enemy")?.value,
     ).toBe(23);
@@ -218,5 +218,26 @@ describe("simple-format (chat-linked) parsing", () => {
     const { item } = flatten(CHARM_EXTENDED);
     expect(item.isSimpleCopy).toBeFalsy();
     expect(item.unknownModifiers.map((u) => u.text)).not.toContain(FLAVOR);
+  });
+
+  it("applies fill % (no tier-floor clamp) for simple copies", () => {
+    const res = parseClipboard(RING_SIMPLE);
+    if (!res.isOk()) throw new Error(res.error);
+    const item = res.value;
+    const lifeCalc = item.statsByType.find(
+      (c) => c.stat.ref === "# to maximum Life",
+    )!;
+    expect(lifeCalc).toBeDefined();
+
+    // simple copy → fill applies: 90 - 20% = 72
+    const simple = calculatedStatToFilter(lifeCalc, 20, item);
+    expect(simple.roll!.default.min).toBe(72);
+
+    // not a simple copy → clamped to the (degenerate) bounds = value
+    const clamped = calculatedStatToFilter(lifeCalc, 20, {
+      ...item,
+      isSimpleCopy: false,
+    });
+    expect(clamped.roll!.default.min).toBe(90);
   });
 });

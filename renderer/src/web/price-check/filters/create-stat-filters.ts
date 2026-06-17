@@ -328,8 +328,10 @@ export function shortRollToFilter(
     max: percentRoll(roll.value, +percent, Math.ceil, dp),
   };
 
-  filterDefault.min = Math.max(filterDefault.min, filterBounds.min);
-  filterDefault.max = Math.min(filterDefault.max, filterBounds.max);
+  if (!item.isSimpleCopy) {
+    filterDefault.min = Math.max(filterDefault.min, filterBounds.min);
+    filterDefault.max = Math.min(filterDefault.max, filterBounds.max);
+  }
 
   const filterRoll = {
     value: roundRoll(roll.value, dp),
@@ -531,8 +533,10 @@ export function calculatedStatToFilter(
               max: percentRoll(roll.value, +percent, Math.ceil, dp),
             };
 
-    filterDefault.min = Math.max(filterDefault.min, filterBounds.min);
-    filterDefault.max = Math.min(filterDefault.max, filterBounds.max);
+    if (!item.isSimpleCopy) {
+      filterDefault.min = Math.max(filterDefault.min, filterBounds.min);
+      filterDefault.max = Math.min(filterDefault.max, filterBounds.max);
+    }
 
     filter.roll = {
       value: roundRoll(roll.value, dp),
