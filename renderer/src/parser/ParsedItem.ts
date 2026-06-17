@@ -89,6 +89,10 @@ export interface ParsedItem {
   isFractured?: boolean;
   isVeiled?: boolean;
   isFoil?: boolean;
+  /** Item was copied in "simple" format (no advanced { } mod blocks),
+   *  e.g. linked in chat. Mods parsed via the lenient fallback; tier/range
+   *  data is unavailable. */
+  isSimpleCopy?: boolean;
   statsByType: StatCalculated[];
   newMods: ParsedModifier[];
   unknownModifiers: Array<{

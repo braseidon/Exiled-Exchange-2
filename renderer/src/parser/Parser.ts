@@ -1232,6 +1232,44 @@ export function parseModifiersPoe2(section: string[], item: ParsedItem) {
   return foundAnyMods ? "SECTION_PARSED" : "SECTION_SKIPPED";
 }
 
+// Extended copies render every mod inside a { ... } block; simple copies
+// (e.g. items linked in chat) never do. If the item text has no mod-info line
+// at all, it's a simple-format copy.
+function isSimpleCopyFormat(item: ParsedItem): boolean {
+  return !item.rawText
+    .split(/\r?\n/)
+    .some((line) => isModInfoLine(line.trim()));
+}
+
+// Resolve plain stat lines from a simple copy. One line per stat (GGG
+// coalesces same-stat mods); per-line type comes from the trailing tag
+// (e.g. "(crafted)"/"(desecrated)"/"(implicit)"/"(rune)"), untagged → Explicit.
+// Returns true if >= 1 stat resolved.
+// LIMITATION (v1): multi-line stats are parsed line-by-line and will not match;
+// their lines fall into item.unknownModifiers (visible, not silent).
+function parseSimpleModLines(section: string[], item: ParsedItem): boolean {
+  let resolvedAny = false;
+  for (const statLine of section) {
+    let { modType, lines } = parseModType([statLine]);
+    if (
+      modType === ModifierType.Explicit &&
+      item.category === ItemCategory.Relic
+    ) {
+      modType = ModifierType.Sanctum;
+    }
+    const modifier: ParsedModifier = {
+      info: { type: modType, tags: [] },
+      stats: [],
+    };
+    parseStatsFromMod(lines, item, modifier);
+    if (modifier.stats.length > 0) resolvedAny = true;
+    if (modType === ModifierType.Veiled) {
+      item.isVeiled = true;
+    }
+  }
+  return resolvedAny;
+}
+
 function parseModifiers(section: string[], item: ParsedItem) {
   performance.mark("parseModifiers");
   if (
@@ -1252,6 +1290,21 @@ function parseModifiers(section: string[], item: ParsedItem) {
   );
 
   if (!recognizedLine) {
+    // Simple-copy fallback: items copied without advanced descriptions render
+    // mods as plain lines. Extended copies ALWAYS use { } blocks, so the gate
+    // keeps them out of this branch entirely (zero regression).
+    if (isSimpleCopyFormat(item)) {
+      const newModsBefore = item.newMods.length;
+      const unknownBefore = item.unknownModifiers.length;
+      if (parseSimpleModLines(section, item)) {
+        item.isSimpleCopy = true;
+        return "SECTION_PARSED";
+      }
+      // Non-mod section (flavor/help text) on a simple item: undo the
+      // speculative pushes so it doesn't pollute newMods/unknownModifiers.
+      item.newMods.length = newModsBefore;
+      item.unknownModifiers.length = unknownBefore;
+    }
     return "SECTION_SKIPPED";
   }
 
