@@ -43,7 +43,8 @@ export function createExactStatFilters(
   performance.mark("create-exact-filters-start");
   let searchInRange = Math.min(2, opts.searchStatRange);
   if (item.category === ItemCategory.Tablet) {
-    searchInRange = 0;
+    // tablets are craftable, so honor the configured fill % like other rares
+    searchInRange = opts.searchStatRange;
   }
 
   if (item.mapBlighted || item.category === ItemCategory.Invitation) return [];
