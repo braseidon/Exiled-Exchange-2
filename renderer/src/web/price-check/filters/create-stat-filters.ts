@@ -726,10 +726,10 @@ export function finalFilterTweaks(ctx: FiltersCreationContext) {
       }
     } else if (filter.tag === FilterTag.Skill && filter.roll) {
       // TODO: enable ilvl for these guys if over 80 i think
+      // Granted-skill implicits (e.g. sceptres) matter for pricing — always
+      // show them in the main list; below max level (19) leave them unchecked
+      // by default rather than hidden under the "show hidden" toggle.
       filter.disabled = filter.roll.value < 19;
-      if (filter.disabled) {
-        filter.hidden = "filters.hide_not_max_level";
-      }
     }
     if (ctx.item.category === ItemCategory.Map) {
       if (
