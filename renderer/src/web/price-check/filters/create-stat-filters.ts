@@ -503,13 +503,26 @@ export function calculatedStatToFilter(
         (s) => s.stat.stat.ref === calc.stat.ref && s.stat.roll!.dp,
       );
 
+    // "Unscalable Value" mods (flag mods, fixed effects) have no meaningful
+    // roll range. Their default stays at the exact value (no % fill), and the
+    // search bound itself is cleared further below. The unscalable flag is
+    // dropped from StatRoll, so read it back from the parsed sources.
+    const isUnscalable = calc.sources.some((s) => s.stat.roll?.unscalable);
+
+    // For integer stats, a percentage fill smaller than one whole step floors
+    // down to a misleadingly large drop (e.g. 2 -> 1 at 10%). Keep the exact
+    // value when the intended reduction is sub-step.
+    const subStepFill = !dp && (Math.abs(roll.value) * percent) / 100 < 1;
+
     const filterBounds = {
       min: percentRoll(roll.min, -0, Math.floor, dp),
       max: percentRoll(roll.max, +0, Math.ceil, dp),
     };
 
     const filterDefault =
-      calc.stat.better === StatBetter.NotComparable
+      calc.stat.better === StatBetter.NotComparable ||
+      isUnscalable ||
+      subStepFill
         ? { min: roll.value, max: roll.value }
         : item.rarity === ItemRarity.Unique
           ? {
@@ -567,6 +580,14 @@ export function calculatedStatToFilter(
 
     if (translation.negate) {
       filterAdjustmentForNegate(filter.roll);
+    }
+
+    // Unscalable mods have a fixed, non-range value (sometimes a flag-like
+    // sentinel, e.g. -50) — don't pre-fill a search bound; leave the field
+    // empty so it just matches "has this mod" rather than showing a value.
+    if (isUnscalable) {
+      filter.roll.min = undefined;
+      filter.roll.max = undefined;
     }
   }
 
