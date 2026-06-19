@@ -448,6 +448,7 @@ interface FetchResult {
     gemSockets?: string[];
     properties?: TradeDataRichLine[];
     requirements?: TradeDataRichLine[];
+    extended?: FetchResultExtended;
     grantedSkills?: TradeDataRichLine[];
     implicitMods?: FetchResultMod[] | string[];
     explicitMods?: FetchResultMod[] | string[];
@@ -455,7 +456,6 @@ interface FetchResult {
     mutatedMods?: FetchResultMod[] | string[];
     enchantMods?: FetchResultMod[] | string[];
     runeMods?: FetchResultMod[] | string[];
-    extended?: FetchResultExtended;
     veiledMods?: FetchResultMod[] | string[];
     pseudoMods?: FetchResultMod[] | string[];
     desecratedMods?: FetchResultMod[] | string[];
@@ -491,6 +491,7 @@ export interface FetchResultExtended {
   ev_aug?: boolean;
   es_aug?: boolean;
   ward_aug?: boolean;
+  // only has implicit?
   mods?: Record<string, TradeModMetadata[]>;
   hashes?: Record<string, TradeModHashes[]>;
 }

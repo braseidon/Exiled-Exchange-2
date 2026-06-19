@@ -273,7 +273,9 @@ export function createFilters(
     if (item.augmentSockets.current) {
       filters.augmentSockets = {
         value: item.augmentSockets.current,
-        disabled: item.augmentSockets.current <= item.augmentSockets.normal,
+        disabled:
+          item.augmentSockets.current <= item.augmentSockets.normal &&
+          !item.isCorrupted,
       };
     }
     if (item.augmentSockets.empty > 0 && item.rarity !== ItemRarity.Unique) {
