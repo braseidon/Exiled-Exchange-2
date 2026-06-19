@@ -20,6 +20,22 @@ the reduced confidence is obvious.
 - `67c7d039` — ui: show limited-data badge for simple-copy items
 - Verified in-game: 2026-06-19
 
+### Small-value rolls search their exact value; unscalable mods don't pre-fill
+For tiny-value mods (e.g. an Abyss Tablet's "2 additional Rare Monsters"), the fill % no longer
+floors the search minimum to a near-useless number — small rolls search their exact value (2, not
+1), while larger rolls still fill ~N% lower. Separately, "Unscalable Value" mods (e.g. "Abyss
+Pits… twice as likely…") now get an empty search box instead of a bogus pre-filled value.
+
+- `6adaa8aa` — filters: exact-search small integer rolls; no pre-fill for unscalable mods
+- Verified in-game: 2026-06-19
+
+### Always show granted-skill implicits (sceptres)
+"Grants Skill: Level N" implicits no longer get buried under "show hidden" — they always appear in
+the main mod list (a below-19 granted skill shows unchecked; level 19+ shows and is checked).
+
+- `93f01467` — filters: always show granted-skill implicits in main list
+- Verified in-game: 2026-06-19
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
