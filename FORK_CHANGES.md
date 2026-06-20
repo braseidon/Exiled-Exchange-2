@@ -54,6 +54,17 @@ Rare-only, level ≤75, and it pre-filled the item's own level). Type a max to c
 - `8831d07a` — i18n: label it "Max Req. Level" so the max semantics are obvious
 - Verified in-game: 2026-06-19
 
+### Tablet price-checks no longer crash on object-schema mods missing tier data
+After the 2026-06-18 schema port (`15c28ac7`), `getTierV2` read `mods.length` unguarded. GGG's
+object-schema fetch results can include a mod with `description`/`hash` but no `mods[]` breakdown
+(e.g. a tablet's pseudo/implicit "uses remaining" line); when such a listing landed in the results
+— e.g. after broadening a Ritual Tablet search by unchecking mods — the whole price check threw
+`Cannot read properties of undefined (reading 'length')`. Now guards `mods?.length` like its
+sibling `getTier`.
+
+- `9ee61ac5` — fix(trade): guard getTierV2 against mod objects with no tier array (+ regression test)
+- Verified in-game: 2026-06-20
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
