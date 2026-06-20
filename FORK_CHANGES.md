@@ -78,6 +78,16 @@ exact; Unique and Magic jewel/tablet are unchanged.
 - `27c79da2` — fix(filters): respect fill % for fractured perfect rolls in the Pseudo tab (+ regression test)
 - Verified in-game: 2026-06-20
 
+### Waystones auto-select all their map properties
+Price-checking a waystone now pre-selects every visible map property (Item Rarity, Pack Size,
+Monster Rarity, Monster Effectiveness, Waystone Drop Chance, …) instead of leaving them unchecked,
+so the whole roll is searched at once without ticking each by hand. Hidden properties (e.g. Revives
+Available) stay unselected. With the fill-% fix above, each searches ~10% below its roll, so it
+finds comparable waystones rather than exact matches.
+
+- `e3d1104b` — feat(filters): auto-select waystone map properties in price-check (+ regression test)
+- Verified in-game: 2026-06-20
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
