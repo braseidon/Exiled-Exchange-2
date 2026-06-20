@@ -65,6 +65,19 @@ sibling `getTier`.
 - `9ee61ac5` — fix(trade): guard getTierV2 against mod objects with no tier array (+ regression test)
 - Verified in-game: 2026-06-20
 
+### Fractured perfect rolls respect the fill % in the Pseudo tab
+A max-rolled (perfect) fractured mod was pinned to its exact value in the Pseudo tab — even though
+that tab searches the mod as a normal explicit (the Base Item tab is what checks the fracture
+itself). A non-fractured max roll right beside it respected the fill %, so the fracture skewed
+rare-item price checks toward near-zero results. The perfect-roll gate keyed on the source
+modifier's type, not the filter's display tag, so a mod shown as "explicit" still got pinned. The
+Pseudo tab now honors the fill % for fractured mods like any other rolled stat (e.g. a fractured
+Crit Damage Bonus at 36 pre-fills 32 at 10%). The Base Item tab still pins fractured perfect rolls
+exact; Unique and Magic jewel/tablet are unchanged.
+
+- `27c79da2` — fix(filters): respect fill % for fractured perfect rolls in the Pseudo tab (+ regression test)
+- Verified in-game: 2026-06-20
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
