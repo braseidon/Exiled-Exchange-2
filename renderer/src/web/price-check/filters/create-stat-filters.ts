@@ -748,6 +748,12 @@ export function finalFilterTweaks(ctx: FiltersCreationContext) {
       ) {
         filter.disabled = true;
         filter.hidden = "filters.hide_for_map";
+      } else if (filter.tag === FilterTag.Property && !filter.hidden) {
+        // Auto-select every visible waystone map property (Item Rarity, Pack
+        // Size, Monster Rarity/Effectiveness, Drop Chance, …) so the whole roll
+        // is searched at once — they're created disabled individually. Hidden
+        // properties (e.g. Revives) stay unselected.
+        filter.disabled = false;
       }
     }
     if (ctx.item.category === ItemCategory.Tablet) {
