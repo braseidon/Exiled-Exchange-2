@@ -34,9 +34,11 @@ jobs:
 
   package:
     needs: renderer
+    permissions:
+      contents: write
     strategy:
       matrix:
-        os: [windows-2025, ubuntu-22.04, macos-14]
+        os: [windows-2025]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v6
@@ -56,11 +58,4 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Hash
-      if: ${{ startsWith(matrix.os, 'windows') }}
       run: type .\main\dist\latest.yml
-    - name: Hash
-      if: ${{ startsWith(matrix.os, 'ubuntu') }}
-      run: cat ./main/dist/latest-linux.yml
-    - name: Hash
-      if: ${{ startsWith(matrix.os, 'macos') }}
-      run: cat ./main/dist/latest-mac.yml
