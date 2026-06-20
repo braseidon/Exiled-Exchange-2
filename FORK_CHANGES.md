@@ -36,6 +36,15 @@ the main mod list (a below-19 granted skill shows unchecked; level 19+ shows and
 - `93f01467` — filters: always show granted-skill implicits in main list
 - Verified in-game: 2026-06-19
 
+### Waystone (map) properties respect the fill %
+Waystone "implicits" — Item Rarity, Pack Size, Monster Rarity, Drop Chance, … — are parsed as map
+**properties** (not mods) and were pinned to their exact rolled value, because they have no parsed
+roll range for the fill % to clamp against. They now honor the configured fill % like every other
+rolled stat (e.g. Item Rarity +28% at 10% searches ≥ 25).
+
+- `4df9bc9b` — filters: apply fill % to waystone/map properties (`propToFilter`, scoped to `ItemCategory.Map`)
+- Verified in-game: 2026-06-19
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
