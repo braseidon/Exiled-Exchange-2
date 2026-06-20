@@ -1,11 +1,13 @@
-# Fork changes — Exiled Exchange 2 (braseidon fork)
+# Completed — Exiled Exchange 2 (braseidon fork)
 
-Fixes and features this fork (`braseidon/Exiled-Exchange-2`) carries on top of upstream
-`Kvan7/Exiled-Exchange-2`. Each entry is added **only after it's verified in-game** — work that's
-written and unit-tested but not yet confirmed stays in `todo.md` until then.
+The dev-side log of shipped fork changes — the done-pile companion to `todo.md`. Fixes and features
+this fork (`braseidon/Exiled-Exchange-2`) carries on top of upstream `Kvan7/Exiled-Exchange-2`. Each
+entry lands here **only after it's verified in-game** — work that's written and unit-tested but not
+yet confirmed stays in `todo.md` until then.
 
-Commit SHAs are the source of truth for the diffs; this file is the human-readable index so our
-changes don't get lost when an upstream merge buries them in `git log`.
+Commit SHAs are the source of truth for the diffs; this file is the technical index so our changes
+don't get lost when an upstream merge buries them in `git log`. The **friend-facing** summary of
+these changes lives in `FORK-CHANGES.md`.
 
 ## Shipped & verified
 
