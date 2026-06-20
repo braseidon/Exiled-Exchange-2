@@ -25,7 +25,7 @@ import { FileWriter } from "./host-files/FileWriter";
 if (app.isPackaged) {
   app.setPath(
     "userData",
-    path.join(app.getPath("appData"), "exiled-exchange-2-braseidon"),
+    path.join(app.getPath("appData"), "exiled-exchange-2-braseidon-fork"),
   );
 }
 

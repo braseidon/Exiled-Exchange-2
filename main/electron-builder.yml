@@ -3,7 +3,7 @@ publish:
   - provider: github
     owner: braseidon
     repo: Exiled-Exchange-2
-productName: "Exiled Exchange 2 (braseidon)"
+productName: "Exiled Exchange 2 (braseidon fork)"
 npmRebuild: false
 files:
   - "package.json"
@@ -17,10 +17,11 @@ extraMetadata:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-  artifactName: "exiled-exchange-2-setup-${version}-braseidon.${ext}"
+  artifactName: "exiled-exchange-2-setup-${version}-braseidon-fork.${ext}"
 portable:
-  artifactName: "exiled-exchange-2-${version}-braseidon.${ext}"
+  artifactName: "exiled-exchange-2-${version}-braseidon-fork.${ext}"
 win:
+  executableName: "Exiled Exchange 2 - braseidon fork"
   target:
     - "nsis"
     - "portable"
