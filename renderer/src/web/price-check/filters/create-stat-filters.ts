@@ -293,7 +293,10 @@ export function initUiModFilters(
 
   ctx.filters.push(
     ...ctx.statsByType.map((mod) =>
-      calculatedStatToFilter(mod, ctx.searchInRange, item),
+      // Pseudo tab: a fractured mod is searched as a normal explicit, so don't
+      // pin its perfect roll to the exact value — let it honor the fill %. The
+      // exact / Base Item tab keeps the pinning (default true).
+      calculatedStatToFilter(mod, ctx.searchInRange, item, undefined, false),
     ),
   );
 
@@ -357,6 +360,7 @@ export function calculatedStatToFilter(
   percent: number,
   item: ParsedItem,
   disabled: boolean = true,
+  applyFracturedExactRoll: boolean = true,
 ): StatFilter {
   const { stat, sources, type } = calc;
   let filter: StatFilter;
@@ -481,11 +485,17 @@ export function calculatedStatToFilter(
       (item.rarity === ItemRarity.Magic &&
         (item.category === ItemCategory.Jewel ||
           item.category === ItemCategory.Tablet)) ||
-      calc.sources.some(
-        ({ modifier }) =>
-          modifier.info.tier === 1 &&
-          modifier.info.type === ModifierType.Fractured,
-      )
+      // Fractured perfect-roll pinning belongs to the exact / Base Item tab. In
+      // the Pseudo tab a fractured mod is searched as a normal explicit, so it
+      // should honor the fill % like any other rolled mod (callers there pass
+      // applyFracturedExactRoll=false). This keys on the source modifier's type,
+      // not the filter's display tag — a fractured mod shows as "explicit" in pseudo.
+      (applyFracturedExactRoll &&
+        calc.sources.some(
+          ({ modifier }) =>
+            modifier.info.tier === 1 &&
+            modifier.info.type === ModifierType.Fractured,
+        ))
     ) {
       const perfectRoll =
         (calc.stat.better === StatBetter.PositiveRoll &&
