@@ -62,7 +62,7 @@ export default defineComponent({
         return {
           have: {
             amount: props.filters.stackSize!.value,
-            price: getPriceFor(props.filters.stackSize!.value),
+            price: getPriceFor(Number(props.filters.stackSize!.value)),
           },
           oneStack: props.item.stackSize
             ? {
