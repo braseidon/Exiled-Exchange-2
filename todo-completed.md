@@ -95,3 +95,24 @@ finds comparable waystones rather than exact matches.
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
   fix that keeps price checks loading after the 2026-06-18 PoE2 patch; listed here only so the
   record of "why the build works" is complete.
+
+### Upstream sync — merged `upstream/master` through their v0.15.8
+Pulled upstream's latest (we were 12 behind); mostly defensive/parsing fixes plus a cache repair.
+Clean auto-merge with one fork-side fixup: upstream's "possible undefined items" change made
+`parseFetchResult` return `T | undefined`, so our tablet-guard test now asserts non-null. Notable
+incoming commits:
+
+- `5e70bfe4` / `0878213c` — guard undefined items / mods missing a tier array (#979)
+- `11b07030` — fix the trade-result cache never hitting
+- `8d3f97fb` — stop parsing womb gifts as currency (#980); `b3f225c0` — logbooks are currency now
+- `53daa93c` — show quality on jewellery tooltips (#890)
+- `edb3d209` — more handling for malformed tradesite data
+- `7ebb60c8` — normalize data files to LF; `352fb70d` — upstream version bump to 0.15.8 (we override to **1.0.0**)
+- `95c184a3` — Linux clipboard workaround from APT (no-op for our Windows-only build)
+- `8cb81979` — the merge commit (+ the test fixup)
+- Verified in-game: 2026-06-20 (price-check + overlay smoke test; full vitest suite green — 521 pass / 2 skip)
+
+Also added **`sync-upstream.sh`** (repo root): fetches `upstream`, merges only if conflict-free,
+stops before commit, and reruns `make-index-files` — a merge updates `public/data/*.ndjson`, so the
+gitignored `*.index.bin` indices must be rebuilt or the app reads stale offsets (CI regenerates its
+own via `main.yml:23`).
