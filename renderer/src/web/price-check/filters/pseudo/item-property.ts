@@ -20,6 +20,7 @@ import {
   StatFilter,
   StatFilterRoll,
 } from "../interfaces";
+import { percentRoll } from "../util";
 
 export function filterItemProp(ctx: FiltersCreationContext) {
   if (ARMOUR.has(ctx.item.category!)) {
@@ -714,6 +715,23 @@ export function propToFilter(
   if (opts.disabled != null) filter.disabled = opts.disabled;
   if (opts.hidden != null) filter.hidden = opts.hidden;
   if (opts.option != null) filter.option = opts.option;
+
+  // Map (waystone) properties — Item Rarity, Pack Size, Monster Rarity, … — have
+  // no parsed roll range: calcPropBounds collapses min===max===value, so
+  // calculatedStatToFilter's bounds clamp pins the search to the exact value and the
+  // configured fill % never applies. These rolls ARE variable on the trade site, so
+  // re-apply the fill to the rolled value here (unclamped, like simple-copy items):
+  // e.g. Item Rarity +28% at 10% searches >= floor(28 * 0.9) = 25.
+  if (filter.roll && ctx.item.category === ItemCategory.Map) {
+    const filled = percentRoll(
+      filter.roll.value,
+      -ctx.searchInRange,
+      Math.floor,
+      filter.roll.dp,
+    );
+    filter.roll.default.min = filled;
+    filter.roll.min = filled;
+  }
 
   return filter;
 }
