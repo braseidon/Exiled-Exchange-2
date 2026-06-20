@@ -1682,8 +1682,8 @@ function getTier(
     .join(" + ");
 }
 
-function getTierV2(mods: FetchModInfo[]): string | undefined {
-  if (!mods.length) return;
+function getTierV2(mods: FetchModInfo[] | undefined): string | undefined {
+  if (!mods?.length) return;
 
   return mods.map((mod) => mod.tier).join(" + ");
 }

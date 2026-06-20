@@ -60,4 +60,34 @@ describe("pathofexile-trade tooltip parsing", () => {
 
     expect(tiers).toEqual(["P19", "S1", "S1", "S1"]);
   });
+
+  it("does not crash when an object-schema mod omits its `mods` tier array", () => {
+    // GGG's object-schema fetch results can return a mod with `description`
+    // and `hash` but no `mods` breakdown (e.g. pseudo/implicit lines like a
+    // tablet's "uses remaining"). getTierV2 must tolerate the missing array.
+    const result = {
+      id: "test-missing-mods",
+      item: {
+        name: "",
+        typeLine: "Ritual Tablet",
+        baseType: "Ritual Tablet",
+        identified: true,
+        rarity: "Rare",
+        explicitMods: [
+          {
+            description: "28% increased Gold found in Map",
+            hash: "x",
+            mods: [{ tier: "P1" }],
+          },
+          { description: "10 uses remaining", hash: "y" }, // no `mods`
+        ],
+      },
+    } as unknown as Parameters<typeof __testExports.parseFetchResult>[0];
+
+    let displayItem!: ReturnType<typeof __testExports.parseFetchResult>;
+    expect(() => {
+      displayItem = __testExports.parseFetchResult(result);
+    }).not.toThrow();
+    expect(getTiers(displayItem.explicitMods)).toEqual(["P1", undefined]);
+  });
 });
