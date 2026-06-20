@@ -361,7 +361,10 @@ function findInDatabase(item: ParserState) {
   // choose 1st variant, correct one will be picked at the end of parsing
   item.info = info[0];
   // same for every variant
-  if (!item.category) {
+  if (
+    !item.category ||
+    item.info.craftable?.category === ItemCategory.Wombgift
+  ) {
     if (item.info.craftable) {
       item.category = item.info.craftable.category;
     } else if (item.info.unique) {
@@ -1952,8 +1955,8 @@ export function removeLinesEnding(
   );
 }
 
-export function parseAffixStrings(clipboard: string): string {
-  return clipboard.replace(/\[([^\]|]+)\|?([^\]]*)\]/g, (_, part1, part2) => {
+export function parseAffixStrings(text: string): string {
+  return text.replace(/\[([^\]|]+)\|?([^\]]*)\]/g, (_, part1, part2) => {
     return part2 || part1;
   });
 }

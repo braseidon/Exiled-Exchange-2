@@ -399,16 +399,16 @@ interface TradeDataRichLine {
   icon?: string;
 }
 interface FetchModInfo {
-  name: string;
-  tier: string;
-  level: number;
+  name?: string;
+  tier?: string;
+  level?: number;
   magnitudes: Array<{ min: string; max: string }>;
 }
 
 interface FetchResultMod {
   description: string;
   hash: string;
-  mods: FetchModInfo[];
+  mods?: FetchModInfo[];
 }
 
 interface FetchResult {
@@ -559,7 +559,7 @@ export interface PricingResult {
   accountName: string;
   accountStatus: "offline" | "online" | "afk";
   ign: string;
-  displayItem: DisplayItem;
+  displayItem?: DisplayItem;
   inDemand?: boolean;
   gone?: boolean;
 }
@@ -1336,7 +1336,12 @@ export async function requestResults(
   }
 
   return data.map<PricingResult>((result) => {
-    const displayItem: DisplayItem = parseFetchResult(result);
+    let displayItem: DisplayItem | undefined;
+    try {
+      displayItem = parseFetchResult(result);
+    } catch (e) {
+      console.error(e);
+    }
 
     let priceCurrencyRank: PricingResult["priceCurrencyRank"];
     if (
@@ -1755,7 +1760,7 @@ function buildNameBlock(
           continue;
 
         case TradePropType.Quality:
-          text = "item.quality";
+          text = `${parseAffixStrings(name)}: {0}`;
           break;
 
         case TradePropType.WeaponSpeed:
