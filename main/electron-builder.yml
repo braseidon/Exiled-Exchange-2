@@ -1,8 +1,9 @@
+appId: com.braseidon.exiled-exchange-2
 publish:
   - provider: github
     owner: braseidon
     repo: Exiled-Exchange-2
-productName: "Exiled Exchange 2"
+productName: "Exiled Exchange 2 (braseidon)"
 npmRebuild: false
 files:
   - "package.json"

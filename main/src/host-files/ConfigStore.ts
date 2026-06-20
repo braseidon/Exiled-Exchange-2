@@ -22,11 +22,36 @@ export class ConfigStore {
   }
 
   async load(): Promise<string | null> {
+    await this.importFromOriginalIfMissing();
     let contents: string | null = null;
     try {
       contents = await fs.readFile(this.cfgPath, "utf8");
     } catch {}
     return contents;
+  }
+
+  // First run of the fork: seed settings from an installed upstream EE2 so users
+  // keep their config. One-time copy — once our config.json exists we never touch
+  // the original again, so the two installs stay independent.
+  private async importFromOriginalIfMissing() {
+    const originalPath = path.join(
+      app.getPath("appData"),
+      "exiled-exchange-2",
+      "apt-data",
+      "config.json",
+    );
+    if (originalPath === this.cfgPath) return; // dev/shared folder — nothing to import
+    try {
+      await fs.access(this.cfgPath);
+      return; // our config already exists
+    } catch {}
+    try {
+      const original = await fs.readFile(originalPath, "utf8");
+      await fs.mkdir(path.dirname(this.cfgPath), { recursive: true });
+      await fs.writeFile(this.cfgPath, original);
+    } catch {
+      // upstream not installed or unreadable — start fresh
+    }
   }
 
   private async save(contents: string, tmp: boolean) {

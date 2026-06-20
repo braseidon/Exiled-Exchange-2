@@ -3,6 +3,7 @@
 import { app, systemPreferences } from "electron";
 import { uIOhook } from "uiohook-napi";
 import os from "node:os";
+import path from "node:path";
 import { startServer, eventPipe, server } from "./server";
 import { Logger } from "./RemoteLogger";
 import { GameWindow } from "./windowing/GameWindow";
@@ -16,6 +17,17 @@ import { GameLogWatcher } from "./host-files/GameLogWatcher";
 import { HttpProxy } from "./proxy";
 import { installExtension, VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import { FileWriter } from "./host-files/FileWriter";
+
+// Run as a distinct app from upstream EE2 so both can be installed side by side:
+// appId + productName give it its own install dir/shortcut/uninstaller, and this
+// gives it its own config folder. Dev stays on the shared folder so it keeps
+// reading the installed app's config.
+if (app.isPackaged) {
+  app.setPath(
+    "userData",
+    path.join(app.getPath("appData"), "exiled-exchange-2-braseidon"),
+  );
+}
 
 if (!app.requestSingleInstanceLock()) {
   app.exit();
