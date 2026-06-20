@@ -4,15 +4,6 @@ import json
 import re
 
 
-def extract_version_from_readme():
-    with open("README.md", "r") as file:
-        content = file.read()
-    match = re.search(r"Exiled-Exchange-2-Setup-(\d+\.\d+\.\d+)", content)
-    if match:
-        return match.group(1)
-    return None
-
-
 def extract_version_from_bug_report():
     with open(".github/ISSUE_TEMPLATE/bug-report.yml", "r") as file:
         for line in file:
@@ -46,7 +37,6 @@ def extract_version_from_package_lock():
 
 
 def main():
-    readme_version = extract_version_from_readme()
     bug_report_version = extract_version_from_bug_report()
     config_version = extract_version_from_config()
     package_json_version = extract_version_from_package_json()
@@ -54,18 +44,18 @@ def main():
         extract_version_from_package_lock()
     )
 
+    # package.json is the source of truth. README is excluded: the fork's badges are
+    # dynamic (latest release / total downloads), so it carries no pinned version.
     if (
-        readme_version != bug_report_version
-        or readme_version != config_version
-        or readme_version != package_json_version
-        or readme_version != package_lock_top_version
-        or readme_version != package_lock_packages_version
+        package_json_version != bug_report_version
+        or package_json_version != config_version
+        or package_json_version != package_lock_top_version
+        or package_json_version != package_lock_packages_version
     ):
         print("Version mismatch detected:")
-        print(f"  README.md version: {readme_version}")
+        print(f"  package.json version: {package_json_version}")
         print(f"  Bug report version: {bug_report_version}")
         print(f"  Config.js version: {config_version}")
-        print(f"  package.json version: {package_json_version}")
         print(f"  package-lock.json top-level version: {package_lock_top_version}")
         print(
             f"  package-lock.json packages[] version: {package_lock_packages_version}"
