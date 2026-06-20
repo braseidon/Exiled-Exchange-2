@@ -45,6 +45,15 @@ rolled stat (e.g. Item Rarity +28% at 10% searches ≥ 25).
 - `4df9bc9b` — filters: apply fill % to waystone/map properties (`propToFilter`, scoped to `ItemCategory.Map`)
 - Verified in-game: 2026-06-19
 
+### Max required-level filter (blank, opt-in)
+Any item with a level requirement now gets a blank, opt-in **Max Req. Level:** filter (previously
+Rare-only, level ≤75, and it pre-filled the item's own level). Type a max to cap required level
+(`req_filters.filters.lvl.max`); left blank it does nothing. Single max only — no minimum.
+
+- `06bbc1ea` — feat(filters): max required-level filter on any item (blank, opt-in)
+- `8831d07a` — i18n: label it "Max Req. Level" so the max semantics are obvious
+- Verified in-game: 2026-06-19
+
 ## Ported from upstream (carried, not fork-original)
 
 - `15c28ac7` — handle GGG's new mod-object fetch schema (mirrors upstream `d923d344`). This is the
