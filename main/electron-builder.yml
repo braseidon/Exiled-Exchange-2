@@ -17,6 +17,9 @@ extraMetadata:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  artifactName: "exiled-exchange-2-setup-${version}-braseidon.${ext}"
+portable:
+  artifactName: "exiled-exchange-2-${version}-braseidon.${ext}"
 win:
   target:
     - "nsis"
