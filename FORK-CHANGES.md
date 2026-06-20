@@ -21,4 +21,4 @@ touch your existing Exiled Exchange 2.
 
 ---
 
-*Kept in sync with the official Exiled Exchange 2.*
+*Kept in sync with the official Exiled Exchange 2 — currently based on v0.15.8.*
