@@ -265,7 +265,7 @@ describe("filterPseudo", () => {
     expect(str?.roll?.value).toBe(25);
   });
 
-  it("should only keep highest ele res", () => {
+  it("should keep every ele res filter, hidden, so each is searchable", () => {
     const ctx: FiltersCreationContext = {
       item: { info: { refName: "name" } } as ParsedItem,
       searchInRange: 0,
@@ -279,20 +279,32 @@ describe("filterPseudo", () => {
     filterPseudo(ctx);
 
     expect(ctx.statsByType.length).toBe(0);
-    expect(ctx.filters.length).toBe(2);
+    // total + both individual resistances (the lower-rolled fire is no longer
+    // deleted — it's kept hidden so it can be toggled on)
+    expect(ctx.filters.length).toBe(3);
     const totalRes = ctx.filters.find(
       (f) => f.statRef === "#% total Elemental Resistance",
     );
     const coldRes = ctx.filters.find(
       (f) => f.statRef === "#% total to Cold Resistance",
     );
+    const fireRes = ctx.filters.find(
+      (f) => f.statRef === "#% total to Fire Resistance",
+    );
 
     expect(totalRes).toBeDefined();
     expect(coldRes).toBeDefined();
+    expect(fireRes).toBeDefined();
+    // total stays the enabled default; individual resistances are disabled + hidden
     expect(totalRes?.disabled).toBe(false);
+    expect(totalRes?.hidden).toBeUndefined();
     expect(coldRes?.disabled).toBe(true);
+    expect(coldRes?.hidden).toBe("filters.hide_ele_res");
+    expect(fireRes?.disabled).toBe(true);
+    expect(fireRes?.hidden).toBe("filters.hide_ele_res");
     expect(totalRes?.roll?.value).toBe(75);
     expect(coldRes?.roll?.value).toBe(50);
+    expect(fireRes?.roll?.value).toBe(25);
   });
 
   it("should add tablet implicits", () => {

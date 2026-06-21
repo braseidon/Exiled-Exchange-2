@@ -13,6 +13,7 @@ touch your existing Exiled Exchange 2.
 - **Smarter waystone price-checks** — every map property (Item Rarity, Pack Size, Monster Rarity, …) auto-selects and respects your fill %, so the whole roll is searched at once
 - **Small-value rolls search their exact value** instead of flooring to a near-useless minimum
 - **Granted-skill implicits always show** (e.g. on sceptres) instead of being hidden
+- **Search any resistance individually** — items with several elemental resistances now keep every one available under "show hidden" (only the highest-rolled was kept before), so you can search a specific resistance (Cold, Fire, or Lightning) without adding it on the trade site
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced

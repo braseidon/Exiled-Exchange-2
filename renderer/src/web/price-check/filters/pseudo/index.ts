@@ -442,19 +442,16 @@ export function filterPseudo(ctx: FiltersCreationContext) {
   if (filterByGroup.has("to_x_ele_res")) {
     const resFilters = filterByGroup.get("to_x_ele_res")!;
 
-    resFilters.sort((a, b) => b.roll!.value - a.roll!.value);
-    const maxFilter =
-      resFilters[0]?.roll?.value === resFilters[1]?.roll?.value
-        ? undefined
-        : resFilters[0];
-
-    if (maxFilter) {
-      maxFilter.hidden = "filters.hide_ele_res";
+    // Keep every individual elemental resistance — hidden, so they stay out of
+    // the default view but are reachable under the "show hidden" toggle. The
+    // "#% total Elemental Resistance" pseudo remains the enabled default; these
+    // stay disabled until the user opts in (e.g. to match a specific resistance
+    // when hunting a replacement). Previously only the highest-value one was
+    // kept and the rest were deleted, so a lower-rolled resistance couldn't be
+    // searched without editing the query on the trade site.
+    for (const filter of resFilters) {
+      filter.hidden = "filters.hide_ele_res";
     }
-
-    ctx.filters = ctx.filters.filter(
-      (filter) => !resFilters.includes(filter) || filter === maxFilter,
-    );
   }
 
   if (filterByGroup.has("to_x_attr")) {
