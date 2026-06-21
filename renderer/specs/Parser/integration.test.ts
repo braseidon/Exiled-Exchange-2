@@ -2,11 +2,19 @@
  * Integration tests for the parser
  */
 
-import { parseClipboard } from "@/parser";
-import { CharmQuality, NormalItem, RareItem, SpectreIncSpirit } from "./items";
+import { ItemCategory, parseClipboard } from "@/parser";
+import {
+  CharmQuality,
+  NormalItem,
+  RareItem,
+  SignetWombgift,
+  SpectreIncSpirit,
+} from "./items";
 import { beforeEach, describe, expect, it } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
 import { init } from "@/assets/data";
+import { apiToSatisfySearch } from "@/web/price-check/trade/common";
+import type { ItemFilters } from "@/web/price-check/filters/interfaces";
 
 describe("Parse Item Properties", () => {
   // Tests almost everything on items, except for modifiers themselves
@@ -80,5 +88,32 @@ describe("Parse Charm Properties", () => {
     const parsedItem = item._unsafeUnwrap();
 
     expect(parsedItem.quality).toBe(CharmQuality.quality);
+  });
+});
+
+describe("Wombgift trade routing", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  // Wombgifts are listed on GGG's currency exchange (Breach category), so they
+  // should price-check via the exchange (bulk / instant trade). Upstream's #980
+  // fix stripped their exchange tradeTag, which forced them onto regular
+  // both-online trade; the fork restores the tradeTag. Guard against a future
+  // upstream sync re-stripping it.
+  it("routes wombgifts to the currency exchange (bulk)", () => {
+    const item = parseClipboard(SignetWombgift.rawText);
+
+    expect(item.isOk()).toBe(true);
+
+    const parsedItem = item._unsafeUnwrap();
+
+    // #980 fix: recategorized from generic Currency to Wombgift
+    expect(parsedItem.category).toBe(ItemCategory.Wombgift);
+    // this fork's fix: the exchange tradeTag must survive
+    expect(parsedItem.info.tradeTag).toBe("signet-wombgift");
+    // with the tag present and no enabled stat filters, routing picks the exchange
+    expect(apiToSatisfySearch(parsedItem, [], {} as ItemFilters)).toBe("bulk");
   });
 });
