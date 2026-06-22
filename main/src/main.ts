@@ -20,14 +20,14 @@ import { FileWriter } from "./host-files/FileWriter";
 
 // Run as a distinct app from upstream EE2 so both can be installed side by side:
 // appId + productName give it its own install dir/shortcut/uninstaller, and this
-// gives it its own config folder. Dev stays on the shared folder so it keeps
-// reading the installed app's config.
-if (app.isPackaged) {
-  app.setPath(
-    "userData",
-    path.join(app.getPath("appData"), "exiled-exchange-2-braseidon-fork"),
-  );
-}
+// gives it its own config folder. Used in dev too, so dev reads the same config
+// as the installed fork (ConfigStore still one-time-imports the original EE2
+// config on first run). Trade-off: dev and the installed fork now share userData,
+// hence the single-instance lock — they can't run at the same time.
+app.setPath(
+  "userData",
+  path.join(app.getPath("appData"), "exiled-exchange-2-braseidon-fork"),
+);
 
 if (!app.requestSingleInstanceLock()) {
   app.exit();

@@ -14,7 +14,7 @@ title: Common issues
     If EE2 works for you with DirectX11/12 renderer,
     then problem is old Vulkan drivers for sure.
 
-4. Delete `%appdata%\exiled-exchange-2`
+4. Delete `%appdata%\exiled-exchange-2-braseidon-fork`
 
     If needed, backup `apt-data` folder with your configuration inside.
 
