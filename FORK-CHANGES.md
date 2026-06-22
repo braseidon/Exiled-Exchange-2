@@ -21,6 +21,7 @@ touch your existing Exiled Exchange 2.
 - **Fractured perfect rolls respect your fill %** in the Pseudo tab (they were pinned to the exact value)
 - **No more tablet crash** — fixed a crash when price-checking certain tablets
 - **Items with a hidden desecrated affix don't force item level into the Pseudo search** — only the Base Item tab uses it, so the Pseudo tab searches on the visible mods like any other item
+- **Hidden desecrated affixes are labeled "Desecrated"** — the price-check toggle no longer shows the old "Veiled" term
 
 ---
 
