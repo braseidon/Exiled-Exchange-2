@@ -9,7 +9,7 @@ touch your existing Exiled Exchange 2.
 ## What this fork changes vs the official app
 
 ### Filters & search
-- **"Max Req. Level" filter** on any item (opt-in) — cap the required level of your search
+- **"Max Req. Level" filter** on any item (opt-in) — cap the required level of your search; click the box to auto-fill the item's own required level
 - **Smarter waystone price-checks** — every map property (Item Rarity, Pack Size, Monster Rarity, …) auto-selects and respects your fill %, so the whole roll is searched at once
 - **Small-value rolls search their exact value** instead of flooring to a near-useless minimum
 - **Granted-skill implicits always show** (e.g. on sceptres) instead of being hidden

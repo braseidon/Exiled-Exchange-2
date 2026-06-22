@@ -72,6 +72,16 @@ describe("req-level-filter", () => {
 
       expect(filters.requires!.level!.disabled).toBe(true);
     });
+
+    it("carries the item's required level as fillOnFocus (click-to-fill)", () => {
+      const res = parseClipboard(RING_EXTENDED);
+      if (!res.isOk()) throw new Error(res.error);
+
+      const filters = createFilters(res.value, createTestCreateOptions());
+
+      // Blank by default, but focusing the input fills the item's own req level.
+      expect(filters.requires!.level!.fillOnFocus).toBe(59);
+    });
   });
 
   // ─── query emission ───────────────────────────────────────────────────────

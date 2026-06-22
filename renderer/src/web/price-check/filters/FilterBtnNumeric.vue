@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref, watch } from "vue";
+import { defineComponent, PropType, computed, ref, watch, nextTick } from "vue";
 import { FilterNumeric } from "./interfaces";
 
 export default defineComponent({
@@ -99,7 +99,17 @@ export default defineComponent({
       inputMax,
       inputFocus(e: FocusEvent) {
         const target = e.target as HTMLInputElement;
-        target.select();
+        // Mirrors FilterModifier.inputFocus: focusing a blank input that
+        // carries a fillOnFocus default (the opt-in Max Req. Level filter)
+        // pre-fills the item's own value, then selects it so it can be
+        // overtyped. Filters that render with a value already set are
+        // non-empty here, so they keep the plain select-and-activate path.
+        if (target.value === "" && props.filter.fillOnFocus !== undefined) {
+          inputMin.value = props.filter.fillOnFocus;
+          nextTick(() => target.select());
+        } else {
+          target.select();
+        }
         props.filter.disabled = false;
       },
       inputMinBlur() {

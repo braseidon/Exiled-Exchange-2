@@ -110,6 +110,11 @@ export interface FilterNumeric {
   value: number | "";
   max?: number | undefined;
   disabled: boolean;
+  // When set, focusing the input while it is blank pre-fills this value and
+  // activates the filter (same blank→fill-on-focus pattern the stat-mod roll
+  // inputs use) — used by the opt-in Max Req. Level filter to fill the item's
+  // own required level on click. Applies to the min input only.
+  fillOnFocus?: number;
 }
 
 export interface FilterDropdown {

@@ -317,6 +317,7 @@ export function createFilters(
       level: {
         value: "",
         disabled: true,
+        fillOnFocus: item.requires.level,
       },
     };
   }
