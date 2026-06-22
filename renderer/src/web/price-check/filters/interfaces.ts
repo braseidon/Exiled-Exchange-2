@@ -33,6 +33,10 @@ export interface ItemFilters {
   };
   rarity?: {
     value: string;
+    // Auto-selected, but the Magic/Normal badge can be toggled off (drops the
+    // rarity filter → searches any rarity). nonunique has no badge so it stays
+    // on. See FiltersBlock.vue + pathofexile-trade.ts emission gate.
+    disabled: boolean;
   };
   socketNumber?: FilterNumeric;
   linkedSockets?: FilterNumeric;

@@ -645,10 +645,12 @@ export function createTradeRequest(
   if (filters.foil && !filters.foil.disabled) {
     propSet(query.filters, "type_filters.filters.rarity.option", "uniquefoil");
   } else if (filters.rarity) {
+    // Toggling the Magic/Normal badge off falls back to "nonunique" (Any
+    // non-unique), not any rarity — every badged item is non-unique.
     propSet(
       query.filters,
       "type_filters.filters.rarity.option",
-      filters.rarity.value,
+      filters.rarity.disabled ? "nonunique" : filters.rarity.value,
     );
   }
 

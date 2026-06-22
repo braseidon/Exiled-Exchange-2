@@ -45,14 +45,12 @@
         />
         <filter-btn-logical
           v-if="filters.rarity?.value === 'magic'"
-          readonly
-          :filter="{ disabled: false }"
+          :filter="filters.rarity"
           text="Magic"
         />
         <filter-btn-logical
           v-if="filters.rarity?.value === 'normal'"
-          readonly
-          :filter="{ disabled: false }"
+          :filter="filters.rarity"
           text="Normal"
         />
         <filter-btn-logical

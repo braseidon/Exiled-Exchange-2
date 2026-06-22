@@ -346,6 +346,7 @@ export function createFilters(
   if (forAdornedJewel) {
     filters.rarity = {
       value: "magic",
+      disabled: false,
     };
   } else if (
     item.rarity === ItemRarity.Normal &&
@@ -355,6 +356,7 @@ export function createFilters(
     // Since chance orbs only work on normal items
     filters.rarity = {
       value: "normal",
+      disabled: false,
     };
   } else if (
     item.rarity === ItemRarity.Magic &&
@@ -364,14 +366,17 @@ export function createFilters(
   ) {
     filters.rarity = {
       value: "magic",
+      disabled: false,
     };
   } else if (
     item.rarity === ItemRarity.Normal ||
     item.rarity === ItemRarity.Magic ||
     item.rarity === ItemRarity.Rare
   ) {
+    // No badge in FiltersBlock for "nonunique"; stays on (always emitted).
     filters.rarity = {
       value: "nonunique",
+      disabled: false,
     };
   }
 

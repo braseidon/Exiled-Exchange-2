@@ -15,6 +15,7 @@ touch your existing Exiled Exchange 2.
 - **Granted-skill implicits always show** (e.g. on sceptres) instead of being hidden
 - **Search any resistance individually** — items with several elemental resistances now keep every one available under "show hidden" (only the highest-rolled was kept before), so you can search a specific resistance (Cold, Fire, or Lightning) without adding it on the trade site
 - **Base Item tab on every non-unique item** — price the bare base of gear, jewels, waystones, charms, and tablets (including corrupted, crafted, or quality items), not just a lucky few. On rares and charms it shows only the base itself — its fracture, quality, and item level — so you can value the shell or find instant-sellers of the base
+- **Un-lock the rarity on Normal/Magic items** — the auto-selected Magic/Normal badge can now be clicked off to widen the search to any non-unique item, instead of being stuck on
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
