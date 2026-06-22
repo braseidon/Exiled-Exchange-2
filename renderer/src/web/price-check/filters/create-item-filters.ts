@@ -484,7 +484,10 @@ export function createFilters(
       disabled: item.rarity !== ItemRarity.Unique,
     };
 
-    if (item.rarity !== ItemRarity.Unique) {
+    // A veiled (unrevealed desecrated) affix can't be searched, so the Base
+    // Item / exact tab falls back to item level. The Pseudo tab leaves item
+    // level off (its visible mods carry the search), like every other item.
+    if (item.rarity !== ItemRarity.Unique && opts.exact) {
       if (filters.itemLevel) {
         filters.itemLevel.disabled = false;
       }
