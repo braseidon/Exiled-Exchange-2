@@ -1211,25 +1211,8 @@ export function parseModifiersPoe2(section: string[], item: ParsedItem) {
     };
     foundAnyMods = parseStatsFromMod(lines, item, { info: modInfo, stats: [] });
   } else {
-    for (const statLines of section) {
-      let { modType, lines } = parseModType([statLines]);
-      if (
-        modType === ModifierType.Explicit &&
-        item.category === ItemCategory.Relic
-      ) {
-        modType = ModifierType.Sanctum;
-      }
-      // const modInfo = parseModInfoLine(modLine, modType);
-      const found = parseStatsFromMod(lines, item, {
-        info: { type: modType, tags: [] },
-        stats: [],
-      });
-      foundAnyMods = found || foundAnyMods;
-
-      if (modType === ModifierType.Veiled) {
-        item.isVeiled = true;
-      }
-    }
+    section.forEach((statLine) => parseSingleLineMod(statLine, item));
+    foundAnyMods = section.length > 0;
   }
 
   return foundAnyMods ? "SECTION_PARSED" : "SECTION_SKIPPED";
@@ -1244,31 +1227,41 @@ function isSimpleCopyFormat(item: ParsedItem): boolean {
     .some((line) => isModInfoLine(line.trim()));
 }
 
-// Resolve plain stat lines from a simple copy. One line per stat (GGG
-// coalesces same-stat mods); per-line type comes from the trailing tag
-// (e.g. "(crafted)"/"(desecrated)"/"(implicit)"/"(rune)"), untagged → Explicit.
-// Returns true if >= 1 stat resolved.
-// LIMITATION (v1): multi-line stats are parsed line-by-line and will not match;
+// Parse a single line as its own one-line modifier (no { } info block): type
+// comes from the trailing tag ("(crafted)"/"(desecrated)"/"(implicit)"/…),
+// untagged → Explicit (Relic → Sanctum). Pushes via parseStatsFromMod (which
+// routes any unmatched line into item.unknownModifiers) and flags item.isVeiled
+// for an unrevealed desecrated ("veiled") affix. Returns whether a *real stat*
+// resolved — parseStatsFromMod's own return is always true, so it can't tell a
+// mod from flavor text, which the simple-copy fallback's rollback relies on.
+function parseSingleLineMod(statLine: string, item: ParsedItem): boolean {
+  let { modType, lines } = parseModType([statLine]);
+  if (
+    modType === ModifierType.Explicit &&
+    item.category === ItemCategory.Relic
+  ) {
+    modType = ModifierType.Sanctum;
+  }
+  const modifier: ParsedModifier = {
+    info: { type: modType, tags: [] },
+    stats: [],
+  };
+  parseStatsFromMod(lines, item, modifier);
+  if (modType === ModifierType.Veiled) {
+    item.isVeiled = true;
+  }
+  return modifier.stats.length > 0;
+}
+
+// Resolve plain stat lines from a simple copy (one mod per line; GGG coalesces
+// same-stat mods). Returns true if >= 1 line resolved a real stat, so a
+// flavor/help-text-only section reports false and is rolled back by the caller.
+// LIMITATION (v1): multi-line stats are parsed line-by-line and won't match;
 // their lines fall into item.unknownModifiers (visible, not silent).
 function parseSimpleModLines(section: string[], item: ParsedItem): boolean {
   let resolvedAny = false;
   for (const statLine of section) {
-    let { modType, lines } = parseModType([statLine]);
-    if (
-      modType === ModifierType.Explicit &&
-      item.category === ItemCategory.Relic
-    ) {
-      modType = ModifierType.Sanctum;
-    }
-    const modifier: ParsedModifier = {
-      info: { type: modType, tags: [] },
-      stats: [],
-    };
-    parseStatsFromMod(lines, item, modifier);
-    if (modifier.stats.length > 0) resolvedAny = true;
-    if (modType === ModifierType.Veiled) {
-      item.isVeiled = true;
-    }
+    if (parseSingleLineMod(statLine, item)) resolvedAny = true;
   }
   return resolvedAny;
 }
