@@ -4,7 +4,8 @@
  * pseudo/base path — including items with crafted mods, quality, corruption, or
  * a low-value base. Uniques are the only exclusion (no meaningful base search).
  *
- * Tablets are on a separate path (single exact tab) and are handled elsewhere.
+ * Tablets are on a separate path: a full Exact tab plus a bare-base tab that
+ * keeps only "uses remaining".
  */
 
 import { parseClipboard } from "@/parser";
@@ -13,6 +14,7 @@ import { setupTests } from "@specs/vitest.setup";
 import { init } from "@/assets/data";
 import { createPresets } from "@/web/price-check/filters/create-presets";
 import { FilterTag } from "@/web/price-check/filters/interfaces";
+import { CharmQuality } from "./items";
 
 const PRESET_OPTS = {
   league: "Standard",
@@ -182,9 +184,9 @@ Monsters deal 15(15-19)% of Damage as Extra Chaos
 Can be used in a Map Device, allowing you to enter a Map. Waystones can only be used once.`,
   },
   {
-    // tablets are routed to a single exact tab (Fix B will revisit)
+    // tablets: full Exact tab + bare-base tab (uses-remaining only)
     name: "rare tablet",
-    expected: [EXACT],
+    expected: [EXACT, BASE],
     raw: `Item Class: Tablet
 Rarity: Rare
 Void Terraform
@@ -208,9 +210,9 @@ Map has 73(70-100)% increased chance to contain Essences
 Can be used in a personal Map Device to add modifiers to a Map.`,
   },
   {
-    // tablets are routed to a single exact tab (Fix B will revisit)
+    // tablets: full Exact tab + bare-base tab (uses-remaining only)
     name: "magic tablet",
-    expected: [EXACT],
+    expected: [EXACT, BASE],
     raw: `Item Class: Tablet
 Rarity: Magic
 Abyss Tablet of the Depths
@@ -285,4 +287,42 @@ describe("Base Item tab content — rares show only the base", () => {
     ).map((s) => s.statRef);
     expect(refs).not.toContain("# Empty Modifier");
   });
+});
+
+describe("Base Item tab content — charms hide rolled mods (any rarity)", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  it("magic charm base tab strips explicit/crafted/desecrated", () => {
+    const tags = baseItemStats(CharmQuality.rawText).map((s) => s.tag);
+    expect(tags).not.toContain(FilterTag.Explicit);
+    expect(tags).not.toContain(FilterTag.Crafted);
+    expect(tags).not.toContain(FilterTag.Desecrated);
+  });
+
+  it("magic charm base tab pre-selects item level (like gear)", () => {
+    const { presets } = createPresets(
+      parseClipboard(CharmQuality.rawText)._unsafeUnwrap(),
+      PRESET_OPTS,
+    );
+    const base = presets.find((p) => p.id === BASE)!;
+    expect(base.filters.itemLevel?.disabled).toBe(false);
+  });
+});
+
+describe("Base Item tab content — tablets show only the bare base", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  for (const name of ["rare tablet", "magic tablet"]) {
+    it(`${name}: base tab keeps only "uses remaining", auto-selected`, () => {
+      const stats = baseItemStats(rawByName(name));
+      expect(stats.map((s) => s.statRef)).toEqual(["# uses remaining"]);
+      expect(stats[0].disabled).toBe(false);
+    });
+  }
 });

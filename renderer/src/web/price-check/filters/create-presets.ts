@@ -60,16 +60,30 @@ export function createPresets(
       item.rarity !== ItemRarity.Unique) ||
     (item.category === ItemCategory.Currency && item.trials?.numberOfTrials)
   ) {
-    return {
-      active: "filters.preset_exact",
-      presets: [
-        {
-          id: "filters.preset_exact",
-          filters: createFilters(item, { ...opts, exact: true }),
-          stats: createExactStatFilters(item, item.statsByType, opts),
-        },
-      ],
+    const exactPreset: FilterPreset = {
+      id: "filters.preset_exact",
+      filters: createFilters(item, { ...opts, exact: true }),
+      stats: createExactStatFilters(item, item.statsByType, opts),
     };
+
+    // Tablets also get a bare-base tab: search the unmodified tablet type with
+    // only "uses remaining" kept + auto-selected, to find instant-sellers of
+    // the base (no tradeTag, so this routes to the trade search, not exchange).
+    if (item.category === ItemCategory.Tablet) {
+      const baseItemPreset: FilterPreset = {
+        id: "filters.preset_base_item",
+        filters: createFilters(item, { ...opts, exact: true }),
+        stats: createExactStatFilters(item, item.statsByType, opts).filter(
+          (filter) => filter.statRef === "# uses remaining",
+        ),
+      };
+      return {
+        active: "filters.preset_exact",
+        presets: [exactPreset, baseItemPreset],
+      };
+    }
+
+    return { active: "filters.preset_exact", presets: [exactPreset] };
   }
 
   if (PRESET_UNIQUES.has(item.info.refName)) {
@@ -106,13 +120,14 @@ export function createPresets(
     return { active: pseudoPreset.id, presets: [pseudoPreset] };
   }
 
-  // The Base Item tab prices the bare base. For a rare that means only the
-  // non-removeable stats — keep fractured mods (locked to the base) and base
-  // implicits, but strip removeable mods (explicit/crafted/desecrated), which
-  // aren't part of the base. Magic items keep their mods: searching a magic
-  // base by its rolled mods + magic tier is a deliberate, useful query.
+  // The Base Item tab prices the bare base: keep fractured mods (locked to the
+  // base) and base implicits, but strip removeable mods (explicit/crafted/
+  // desecrated). Applies to rares, and to charms of any rarity — a charm's
+  // value is its base + quality (which can't be crafted on), not its rolled
+  // mods. Other magic items keep their mods: searching a magic base by its
+  // rolled mods + tier is a deliberate, useful query.
   let baseItemStats = createExactStatFilters(item, item.statsByType, opts);
-  if (item.rarity === ItemRarity.Rare) {
+  if (item.rarity === ItemRarity.Rare || item.category === ItemCategory.Charm) {
     baseItemStats = baseItemStats.filter(
       (filter) =>
         filter.tag !== FilterTag.Explicit &&

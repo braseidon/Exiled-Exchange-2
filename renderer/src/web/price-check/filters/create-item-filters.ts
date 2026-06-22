@@ -417,10 +417,7 @@ export function createFilters(
         // TODO limit level by item type
         filters.itemLevel = {
           value: Math.min(item.itemLevel, maxUsefulItemLevel(item.category)),
-          disabled:
-            !opts.exact ||
-            item.category === ItemCategory.Flask ||
-            item.category === ItemCategory.Charm,
+          disabled: !opts.exact || item.category === ItemCategory.Flask,
         };
       }
     }

@@ -188,6 +188,7 @@
     "empty": "No relevant stats were found",
     "tier": "Tier {0}",
     "preset_pseudo": "Pseudo",
+    "preset_exact": "Exact",
     "preset_base_item": "Base item",
     "hide_const_roll": "Roll is not variable",
     "hide_ele_dps": "Elemental damage is not the main source of DPS",
