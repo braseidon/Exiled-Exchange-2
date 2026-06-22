@@ -1,0 +1,288 @@
+/**
+ * The Base Item tab (filters.preset_base_item) lets you price-check an item's
+ * bare base type. It should appear for every non-unique item that reaches the
+ * pseudo/base path — including items with crafted mods, quality, corruption, or
+ * a low-value base. Uniques are the only exclusion (no meaningful base search).
+ *
+ * Tablets are on a separate path (single exact tab) and are handled elsewhere.
+ */
+
+import { parseClipboard } from "@/parser";
+import { beforeEach, describe, expect, it } from "vitest";
+import { setupTests } from "@specs/vitest.setup";
+import { init } from "@/assets/data";
+import { createPresets } from "@/web/price-check/filters/create-presets";
+import { FilterTag } from "@/web/price-check/filters/interfaces";
+
+const PRESET_OPTS = {
+  league: "Standard",
+  currency: undefined,
+  listingType: undefined,
+  collapseListings: "api" as const,
+  activateStockFilter: false,
+  searchStatRange: 10,
+  useEn: true,
+  defaultAllSelected: false,
+  autoFillEmptyAugmentSockets: false as const,
+};
+
+const PSEUDO = "filters.preset_pseudo";
+const BASE = "filters.preset_base_item";
+const EXACT = "filters.preset_exact";
+
+const CASES: Array<{ name: string; raw: string; expected: string[] }> = [
+  {
+    // crafted mod previously suppressed the base tab
+    name: "rare jewel with crafted + fractured mods",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Jewels
+Rarity: Rare
+Entropy Eye
+Sapphire
+--------
+Item Level: 22
+--------
+{ Prefix Modifier "Iconic" (Tier: 1) — Aura }
+25(15-25)% increased Presence Area of Effect
+{ Crafted Prefix Modifier "" }
+44(40-60)% increased Effect of Suffixes — Unscalable Value
+{ Fractured Suffix Modifier "of Gripping" (Tier: 1) — Damage, Minion, Critical — 44% Increased }
+Minions have 25(15-25)% increased Critical Damage Bonus
+{ Suffix Modifier "of Marshalling" (Tier: 1) — Minion, Critical — 44% Increased }
+Minions have 20(10-20)% increased Critical Hit Chance
+{ Desecrated Suffix Modifier "of Orchestration" (Tier: 1) — Attack, Caster, Speed, Minion — 44% Increased }
+Minions have 4(2-4)% increased Attack and Cast Speed
+--------
+Place into an allocated Jewel Socket on the Passive Skill Tree. Right click to remove from the Socket.
+--------
+Fractured Item`,
+  },
+  {
+    // quality 20 + crafted mod previously suppressed the base tab
+    name: "rare helmet with quality 20 + crafted mod",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Helmets
+Rarity: Rare
+Corpse Horn
+Trapper Hood
+--------
+Quality: +20% (augmented)
+Evasion Rating: 692 (augmented)
+--------
+Requires: Level 75, 107 Dex
+--------
+Sockets: S
+--------
+Item Level: 81
+--------
+8% increased Reservation Efficiency of Minion Skills (rune)
+--------
+{ Prefix Modifier "Wayfarer's" (Tier: 2) — Mana, Evasion }
+36(33-38)% increased Evasion Rating
++30(27-32) to maximum Mana
+{ Prefix Modifier "Stag's" (Tier: 1) — Life, Evasion }
+41(39-42)% increased Evasion Rating
++42(42-49) to maximum Life
+{ Prefix Modifier "Virile" (Tier: 3) — Life }
++118(100-119) to maximum Life
+{ Suffix Modifier "of the Despot" (Tier: 1) — Minion, Gem }
++2 to Level of all Minion Skills
+{ Desecrated Suffix Modifier "of Amanamu" (Tier: 1) — Elemental, Fire, Chaos, Resistance }
++14(13-17)% to Fire and Chaos Resistances
+{ Crafted Suffix Modifier "of the Volcano" (Tier: 3) — Elemental, Fire, Resistance }
++34(31-35)% to Fire Resistance`,
+  },
+  {
+    // corruption (non-modifiable) previously suppressed the base tab
+    name: "corrupted rare waystone",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Waystones
+Rarity: Rare
+Dread Choice
+Waystone (Tier 15)
+--------
+Revives Available: 0 (augmented)
+Item Rarity: +41% (augmented)
+Pack Size: +28% (augmented)
+Monster Rarity: +19% (augmented)
+Waystone Drop Chance: +115% (augmented)
+--------
+Item Level: 80
+--------
+{ Prefix Modifier "Precise" (Tier: 1) }
+Monsters have 34(30-40)% increased Accuracy Rating
+{ Prefix Modifier "Thunderous" (Tier: 1) }
+Monsters deal 18(15-19)% of Damage as Extra Lightning
+{ Prefix Modifier "Shattering" (Tier: 1) }
+Monsters Break Armour equal to 29(25-30)% of Physical Damage dealt
+{ Prefix Modifier "Venomous" (Tier: 1) }
+Monsters have 33(27-33)% chance to Poison on Hit
+{ Suffix Modifier "of Evasion" (Tier: 1) }
+Monsters are Evasive
+{ Suffix Modifier "of Smothering" (Tier: 1) }
+Players have 37(40-36)% less Recovery Rate of Life and Energy Shield
+{ Suffix Modifier "of Erosion" (Tier: 1) }
+Players are periodically Cursed with Elemental Weakness — Unscalable Value
+{ Suffix Modifier "of Buffering" (Tier: 1) }
+Monsters gain 13(12-25)% of maximum Life as Extra maximum Energy Shield
+--------
+Can be used in a Map Device, allowing you to enter a Map. Waystones can only be used once.
+--------
+Corrupted`,
+  },
+  {
+    // already showed the base tab — guard against regression
+    name: "clean rare waystone",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Waystones
+Rarity: Rare
+Desecrated Intent
+Waystone (Tier 15)
+--------
+Revives Available: 2 (augmented)
+Item Rarity: +12% (augmented)
+Pack Size: +7% (augmented)
+Monster Rarity: +18% (augmented)
+Monster Effectiveness: +13% (augmented)
+Waystone Drop Chance: +60% (augmented)
+--------
+Item Level: 83
+--------
+{ Prefix Modifier "Impacting" (Tier: 1) }
+Monsters have 94(90-100)% increased Stun Buildup
+{ Suffix Modifier "of Enduring" (Tier: 1) }
+Monsters are Armoured
+{ Suffix Modifier "of Drought" (Tier: 1) }
+Players gain 34(35-30)% reduced Flask Charges
+{ Suffix Modifier "of Fatigue" (Tier: 1) }
+Players have 28(30-25)% less Cooldown Recovery Rate
+--------
+Can be used in a Map Device, allowing you to enter a Map. Waystones can only be used once.`,
+  },
+  {
+    // already showed the base tab — guard against regression
+    name: "magic waystone",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Waystones
+Rarity: Magic
+Profane Waystone (Tier 15) of Exposure
+--------
+Revives Available: 4 (augmented)
+Item Rarity: +15% (augmented)
+Pack Size: +10% (augmented)
+Waystone Drop Chance: +40% (augmented)
+--------
+Item Level: 82
+--------
+{ Prefix Modifier "Profane" (Tier: 1) }
+Monsters deal 15(15-19)% of Damage as Extra Chaos
+{ Suffix Modifier "of Exposure" (Tier: 1) }
+-6(-8--6)% maximum Player Resistances
+--------
+Can be used in a Map Device, allowing you to enter a Map. Waystones can only be used once.`,
+  },
+  {
+    // tablets are routed to a single exact tab (Fix B will revisit)
+    name: "rare tablet",
+    expected: [EXACT],
+    raw: `Item Class: Tablet
+Rarity: Rare
+Void Terraform
+Irradiated Tablet
+--------
+Item Level: 79
+--------
+{ Implicit Modifier }
+Adds Irradiated to a Map
+10 uses remaining
+--------
+{ Prefix Modifier "Abounding" (Tier: 1) }
+Map has 19(15-20)% increased Monster Rarity
+{ Prefix Modifier "Bountiful" (Tier: 1) }
+32(25-35)% increased Gold found in Map
+{ Suffix Modifier "of the Cartographer" (Tier: 1) }
+36(30-40)% increased Quantity of Waystones found in Map
+{ Suffix Modifier "of the Essence" (Tier: 1) }
+Map has 73(70-100)% increased chance to contain Essences
+--------
+Can be used in a personal Map Device to add modifiers to a Map.`,
+  },
+  {
+    // tablets are routed to a single exact tab (Fix B will revisit)
+    name: "magic tablet",
+    expected: [EXACT],
+    raw: `Item Class: Tablet
+Rarity: Magic
+Abyss Tablet of the Depths
+--------
+Item Level: 80
+--------
+{ Implicit Modifier }
+Adds Abysses to a Map
+10 uses remaining
+--------
+{ Suffix Modifier "of the Depths" (Tier: 1) }
+Abysses in Map have 17(10-20)% increased chance to lead to an Abyssal Depths
+--------
+Can be used in a personal Map Device to add modifiers to a Map.`,
+  },
+];
+
+describe("Base Item tab presence", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  for (const { name, raw, expected } of CASES) {
+    it(`${name} → [${expected.join(", ")}]`, () => {
+      const res = parseClipboard(raw);
+      expect(res.isOk()).toBe(true);
+      const { presets } = createPresets(res._unsafeUnwrap(), PRESET_OPTS);
+      expect(presets.map((p) => p.id)).toEqual(expected);
+    });
+  }
+});
+
+const rawByName = (name: string) => CASES.find((c) => c.name === name)!.raw;
+
+const baseItemStats = (raw: string) => {
+  const { presets } = createPresets(
+    parseClipboard(raw)._unsafeUnwrap(),
+    PRESET_OPTS,
+  );
+  return presets.find((p) => p.id === BASE)!.stats;
+};
+
+describe("Base Item tab content — rares show only the base", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  it("keeps the fractured mod but drops removeable mods (jewel)", () => {
+    const tags = baseItemStats(
+      rawByName("rare jewel with crafted + fractured mods"),
+    ).map((s) => s.tag);
+    expect(tags).toContain(FilterTag.Fractured);
+    expect(tags).not.toContain(FilterTag.Crafted);
+    expect(tags).not.toContain(FilterTag.Desecrated);
+    expect(tags).not.toContain(FilterTag.Explicit);
+  });
+
+  it("drops removeable mods (helmet)", () => {
+    const tags = baseItemStats(
+      rawByName("rare helmet with quality 20 + crafted mod"),
+    ).map((s) => s.tag);
+    expect(tags).not.toContain(FilterTag.Crafted);
+    expect(tags).not.toContain(FilterTag.Desecrated);
+    expect(tags).not.toContain(FilterTag.Explicit);
+  });
+
+  it("omits the empty-modifier filter when over affix capacity (jewel)", () => {
+    const refs = baseItemStats(
+      rawByName("rare jewel with crafted + fractured mods"),
+    ).map((s) => s.statRef);
+    expect(refs).not.toContain("# Empty Modifier");
+  });
+});

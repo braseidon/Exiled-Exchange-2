@@ -5,9 +5,8 @@ import {
 } from "./create-stat-filters";
 import { sumStatsByModType } from "@/parser/modifiers";
 import { ItemCategory, ItemRarity, ParsedItem } from "@/parser";
-import type { FilterPreset } from "./interfaces";
+import { FilterTag, type FilterPreset } from "./interfaces";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
-import { hasCraftingValue, likelyFinishedItem } from "./common";
 import { createUniquePresets, PRESET_UNIQUES } from "./create-unique-filters";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V"];
@@ -99,14 +98,32 @@ export function createPresets(
   //   );
   // }
 
-  if (likelyFinishedItem(item) || !hasCraftingValue(item)) {
+  // Uniques are the only items with no meaningful base to price-check; every
+  // other non-unique item on this path gets a Base Item tab (even with crafted
+  // mods, quality, corruption, or a low-value base — showing the bare-base
+  // search is harmless and often useful, e.g. valuing a fracture).
+  if (item.rarity === ItemRarity.Unique) {
     return { active: pseudoPreset.id, presets: [pseudoPreset] };
   }
 
+  // The Base Item tab prices the bare base. For a rare that means only the
+  // non-removeable stats — keep fractured mods (locked to the base) and base
+  // implicits, but strip removeable mods (explicit/crafted/desecrated), which
+  // aren't part of the base. Magic items keep their mods: searching a magic
+  // base by its rolled mods + magic tier is a deliberate, useful query.
+  let baseItemStats = createExactStatFilters(item, item.statsByType, opts);
+  if (item.rarity === ItemRarity.Rare) {
+    baseItemStats = baseItemStats.filter(
+      (filter) =>
+        filter.tag !== FilterTag.Explicit &&
+        filter.tag !== FilterTag.Crafted &&
+        filter.tag !== FilterTag.Desecrated,
+    );
+  }
   const baseItemPreset: FilterPreset = {
     id: "filters.preset_base_item",
     filters: createFilters(item, { ...opts, exact: true }),
-    stats: createExactStatFilters(item, item.statsByType, opts),
+    stats: baseItemStats,
   };
 
   return {

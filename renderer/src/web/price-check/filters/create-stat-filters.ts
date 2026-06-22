@@ -882,29 +882,37 @@ function showHasEmptyModifier(ctx: FiltersCreationContext):
   const { prefixes, suffixes, total } = explicitModifierCount(item);
   const maxAmount = itemMaxModifiersBySlot(item, ctx.filters);
 
-  if (total !== maxAmount[ItemHasEmptyModifier.Any] && total !== 0) {
-    const empty =
-      suffixes === maxAmount[ItemHasEmptyModifier.Suffix]
-        ? ItemHasEmptyModifier.Prefix
-        : prefixes === maxAmount[ItemHasEmptyModifier.Prefix]
-          ? ItemHasEmptyModifier.Suffix
-          : ItemHasEmptyModifier.Any;
+  const prefixRoom = Math.max(
+    0,
+    maxAmount[ItemHasEmptyModifier.Prefix] - prefixes,
+  );
+  const suffixRoom = Math.max(
+    0,
+    maxAmount[ItemHasEmptyModifier.Suffix] - suffixes,
+  );
 
-    const counts = {
-      [ItemHasEmptyModifier.Any]: maxAmount[ItemHasEmptyModifier.Any] - total,
-      [ItemHasEmptyModifier.Prefix]:
-        maxAmount[ItemHasEmptyModifier.Prefix] - prefixes,
-      [ItemHasEmptyModifier.Suffix]:
-        maxAmount[ItemHasEmptyModifier.Suffix] - suffixes,
-    };
-
-    return {
-      empty,
-      counts,
-    };
+  // No open affix slots to advertise — either the item is full, or it sits over
+  // the modeled cap because a "+# to maximum modifiers" craft was applied then
+  // removed (the extra affix stays, so current count exceeds max). Clamping
+  // keeps that from surfacing a nonsensical negative empty slot.
+  if (total === 0 || prefixRoom + suffixRoom === 0) {
+    return false;
   }
 
-  return false;
+  const empty =
+    suffixRoom === 0
+      ? ItemHasEmptyModifier.Prefix
+      : prefixRoom === 0
+        ? ItemHasEmptyModifier.Suffix
+        : ItemHasEmptyModifier.Any;
+
+  const counts = {
+    [ItemHasEmptyModifier.Any]: prefixRoom + suffixRoom,
+    [ItemHasEmptyModifier.Prefix]: prefixRoom,
+    [ItemHasEmptyModifier.Suffix]: suffixRoom,
+  };
+
+  return { empty, counts };
 }
 
 function enableAllFilters(filters: StatFilter[]) {
