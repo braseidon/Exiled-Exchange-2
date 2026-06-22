@@ -14,7 +14,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { setupTests } from "@specs/vitest.setup";
 import { init } from "@/assets/data";
 import { apiToSatisfySearch } from "@/web/price-check/trade/common";
-import type { ItemFilters } from "@/web/price-check/filters/interfaces";
+import { createPresets } from "@/web/price-check/filters/create-presets";
 
 describe("Parse Item Properties", () => {
   // Tests almost everything on items, except for modifiers themselves
@@ -97,23 +97,35 @@ describe("Wombgift trade routing", () => {
     await init("en");
   });
 
-  // Wombgifts are listed on GGG's currency exchange (Breach category), so they
-  // should price-check via the exchange (bulk / instant trade). Upstream's #980
-  // fix stripped their exchange tradeTag, which forced them onto regular
-  // both-online trade; the fork restores the tradeTag. Guard against a future
-  // upstream sync re-stripping it.
-  it("routes wombgifts to the currency exchange (bulk)", () => {
-    const item = parseClipboard(SignetWombgift.rawText);
+  // Wombgifts must use the regular trade search, not the bulk currency
+  // exchange: only the trade search exposes the "Instant" (securable /
+  // instant-buyout) listing type, which is what people want for these. The
+  // exchange has no "Instant" option (pathofexile-bulk rejects securable). They
+  // carry no exchange tradeTag so apiToSatisfySearch returns "trade", and the
+  // default listing type is "securable" (Instant). Guard against a wombgift
+  // tradeTag sneaking back in (which would force the exchange).
+  it("routes wombgifts to the trade search with the Instant default", () => {
+    const item = parseClipboard(SignetWombgift.rawText)._unsafeUnwrap();
 
-    expect(item.isOk()).toBe(true);
+    expect(item.category).toBe(ItemCategory.Wombgift);
+    expect(item.info.tradeTag).toBeUndefined();
 
-    const parsedItem = item._unsafeUnwrap();
+    const { presets, active } = createPresets(item, {
+      league: "Standard",
+      currency: undefined,
+      listingType: undefined,
+      collapseListings: "api",
+      activateStockFilter: false,
+      searchStatRange: 10,
+      useEn: true,
+      defaultAllSelected: false,
+      autoFillEmptyAugmentSockets: false,
+    });
+    const preset = presets.find((p) => p.id === active)!;
 
-    // #980 fix: recategorized from generic Currency to Wombgift
-    expect(parsedItem.category).toBe(ItemCategory.Wombgift);
-    // this fork's fix: the exchange tradeTag must survive
-    expect(parsedItem.info.tradeTag).toBe("signet-wombgift");
-    // with the tag present and no enabled stat filters, routing picks the exchange
-    expect(apiToSatisfySearch(parsedItem, [], {} as ItemFilters)).toBe("bulk");
+    expect(apiToSatisfySearch(item, preset.stats, preset.filters)).toBe(
+      "trade",
+    );
+    expect(preset.filters.trade.listingType).toBe("securable");
   });
 });

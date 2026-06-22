@@ -16,7 +16,6 @@ touch your existing Exiled Exchange 2.
 - **Search any resistance individually** — items with several elemental resistances now keep every one available under "show hidden" (only the highest-rolled was kept before), so you can search a specific resistance (Cold, Fire, or Lightning) without adding it on the trade site
 
 ### Fixes
-- **Wombgifts use the currency exchange again** — price-checks now hit the instant-trade exchange instead of the slower both-online trade search
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
 - **Fractured perfect rolls respect your fill %** in the Pseudo tab (they were pinned to the exact value)
 - **No more tablet crash** — fixed a crash when price-checking certain tablets

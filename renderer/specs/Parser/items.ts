@@ -1272,18 +1272,16 @@ export const SignetWombgift = new TestItem(`Item Class: Wombgifts
 Rarity: Currency
 Signet Wombgift
 --------
-Item Level: 82
-Requires 1167 Hiveblood
+Item Level: 80
+Requires 1023 Hiveblood
 --------
 Can grow into a Ring on the Genesis Tree
 --------
 Place this item into the ring womb on the Genesis Tree. Right click to retrieve from the Genesis Tree.
 `);
 
-// "Rarity: Currency" sets category to Currency; the parser then overrides it to
-// Wombgift via the matched base's craftable.category (the #980 fix).
 SignetWombgift.category = ItemCategory.Wombgift;
-SignetWombgift.itemLevel = 82;
+SignetWombgift.itemLevel = 80;
 
 SignetWombgift.info.refName = "Signet Wombgift";
 SignetWombgift.sectionCount = 4;
