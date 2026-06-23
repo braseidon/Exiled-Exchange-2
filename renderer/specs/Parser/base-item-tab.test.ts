@@ -34,6 +34,34 @@ const EXACT = "filters.preset_exact";
 
 const CASES: Array<{ name: string; raw: string; expected: string[] }> = [
   {
+    // gear: its mods are hidden on the Pseudo tab (rolled into pseudo DPS), so
+    // the base tab must keep them — the only place to search the exact roll
+    name: "rare crossbow",
+    expected: [PSEUDO, BASE],
+    raw: `Item Class: Crossbows
+Rarity: Rare
+Mind Core
+Stout Crossbow
+--------
+Physical Damage: 77-207 (augmented)
+Critical Hit Chance: 5.00%
+Attacks per Second: 1.55
+Reload Time: 0.75
+--------
+Requires: Level 67, 74 Str, 74 Dex
+--------
+Item Level: 81
+--------
+{ Prefix Modifier "Flaring" (Tier: 1) — Damage, Physical, Attack }
+Adds 47(37-55) to 88(63-94) Physical Damage
+{ Suffix Modifier "of the Vampire" (Tier: 1) — Life, Physical, Attack }
+Leeches 9.78(9-9.9)% of Physical Damage as Life
+{ Suffix Modifier "of Enveloping" (Tier: 5) — Mana }
+Gain 13(10-14) Mana per enemy killed
+{ Suffix Modifier "of Nourishment" (Tier: 1) — Life, Attack }
+Grants 5 Life per Enemy Hit`,
+  },
+  {
     // crafted mod previously suppressed the base tab
     name: "rare jewel with crafted + fractured mods",
     expected: [PSEUDO, BASE],
@@ -256,26 +284,50 @@ const baseItemStats = (raw: string) => {
   return presets.find((p) => p.id === BASE)!.stats;
 };
 
-describe("Base Item tab content — rares show only the base", () => {
+describe("Base Item tab content — gear keeps its rolled mods (pseudo hides them)", () => {
   beforeEach(async () => {
     setupTests();
     await init("en");
   });
 
+  // The Pseudo tab rolls a weapon's added damage into pseudo DPS and hides the
+  // raw mod, so the Base Item tab is the only place to search the literal
+  // "Adds # to # Physical Damage" roll. Regressed when the strip was keyed on
+  // rarity instead of category.
+  it("weapon keeps its explicit mods (crossbow)", () => {
+    const stats = baseItemStats(rawByName("rare crossbow"));
+    expect(stats.map((s) => s.tag)).toContain(FilterTag.Explicit);
+    expect(stats.some((s) => /Physical Damage/i.test(s.statRef))).toBe(true);
+  });
+
+  // Armour/jewellery resistances + attributes roll into pseudo-totals too — keep
+  // them. This helmet has 6 mods, so it also exercises the Base Item tab's
+  // bypass of the ">=5 mods ⇒ drop explicit" exact-tab cap: every explicit mod
+  // (plus crafted/desecrated) must show, since you uncheck down to the one roll
+  // you want rather than exact-matching the whole item.
+  it("armour keeps every explicit mod on a 6-mod item (helmet)", () => {
+    const tags = baseItemStats(
+      rawByName("rare helmet with quality 20 + crafted mod"),
+    ).map((s) => s.tag);
+    expect(tags).toContain(FilterTag.Explicit);
+    expect(tags).toContain(FilterTag.Crafted);
+    expect(tags).toContain(FilterTag.Desecrated);
+  });
+});
+
+describe("Base Item tab content — non-gear bases strip rolled mods", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  // Passive jewels are not gear: the Pseudo tab shows their mods unchanged, so
+  // the base tab strips them, keeping only the fracture (locked to the base).
   it("keeps the fractured mod but drops removeable mods (jewel)", () => {
     const tags = baseItemStats(
       rawByName("rare jewel with crafted + fractured mods"),
     ).map((s) => s.tag);
     expect(tags).toContain(FilterTag.Fractured);
-    expect(tags).not.toContain(FilterTag.Crafted);
-    expect(tags).not.toContain(FilterTag.Desecrated);
-    expect(tags).not.toContain(FilterTag.Explicit);
-  });
-
-  it("drops removeable mods (helmet)", () => {
-    const tags = baseItemStats(
-      rawByName("rare helmet with quality 20 + crafted mod"),
-    ).map((s) => s.tag);
     expect(tags).not.toContain(FilterTag.Crafted);
     expect(tags).not.toContain(FilterTag.Desecrated);
     expect(tags).not.toContain(FilterTag.Explicit);

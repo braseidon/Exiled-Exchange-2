@@ -5,6 +5,7 @@ import {
 } from "./create-stat-filters";
 import { sumStatsByModType } from "@/parser/modifiers";
 import { ItemCategory, ItemRarity, ParsedItem } from "@/parser";
+import { ACCESSORY, ARMOUR, WEAPON } from "@/parser/meta";
 import { FilterTag, type FilterPreset } from "./interfaces";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
 import { createUniquePresets, PRESET_UNIQUES } from "./create-unique-filters";
@@ -135,12 +136,32 @@ export function createPresets(
 
   // The Base Item tab prices the bare base: keep fractured mods (locked to the
   // base) and base implicits, but strip removeable mods (explicit/crafted/
-  // desecrated). Applies to rares, and to charms of any rarity — a charm's
-  // value is its base + quality (which can't be crafted on), not its rolled
-  // mods. Other magic items keep their mods: searching a magic base by its
-  // rolled mods + tier is a deliberate, useful query.
-  let baseItemStats = createExactStatFilters(item, item.statsByType, opts);
-  if (item.rarity === ItemRarity.Rare || item.category === ItemCategory.Charm) {
+  // desecrated). Applies to non-gear rares, and to charms of any rarity — a
+  // charm's value is its base + quality (which can't be crafted on), not its
+  // rolled mods. Magic items keep their mods: searching a magic base by its
+  // rolled mods + tier is a deliberate query.
+  //
+  // Gear (weapons, armour, jewellery) is exempt: the Pseudo tab rolls its mods
+  // into pseudo-totals (pseudo DPS, total resistances/attributes) and hides the
+  // raw rolls, so the Base Item tab is the only place to search a mod's exact
+  // value (e.g. the literal "Adds # to # Physical Damage" on a weapon). Passive
+  // jewels are NOT gear — the Pseudo tab shows their mods unchanged, so the
+  // strip stays.
+  const pseudoHidesMods =
+    item.category !== undefined &&
+    (WEAPON.has(item.category) ||
+      ARMOUR.has(item.category) ||
+      ACCESSORY.has(item.category));
+  let baseItemStats = createExactStatFilters(
+    item,
+    item.statsByType,
+    opts,
+    true,
+  );
+  if (
+    !pseudoHidesMods &&
+    (item.rarity === ItemRarity.Rare || item.category === ItemCategory.Charm)
+  ) {
     baseItemStats = baseItemStats.filter(
       (filter) =>
         filter.tag !== FilterTag.Explicit &&

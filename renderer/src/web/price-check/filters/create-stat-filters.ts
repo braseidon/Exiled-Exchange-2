@@ -39,6 +39,11 @@ export function createExactStatFilters(
   item: ParsedItem,
   statsByType: StatCalculated[],
   opts: { searchStatRange: number; defaultAllSelected: boolean },
+  // The Base Item tab passes this to keep every explicit mod regardless of how
+  // many the item has — its job is to surface each mod's exact roll (the Pseudo
+  // tab hides them on gear), so the "5+ mods ⇒ drop explicit" exact-tab cap
+  // (which assumes you're exact-matching the whole item) works against it.
+  keepAllExplicits = false,
 ): StatFilter[] {
   performance.mark("create-exact-filters-start");
   let searchInRange = Math.min(2, opts.searchStatRange);
@@ -86,7 +91,7 @@ export function createExactStatFilters(
   if (
     (item.rarity === ItemRarity.Magic ||
       (item.rarity === ItemRarity.Rare &&
-        explicitModifierCount(item).total < 5)) &&
+        (keepAllExplicits || explicitModifierCount(item).total < 5))) &&
     item.category !== ItemCategory.ClusterJewel &&
     item.category !== ItemCategory.Map &&
     item.category !== ItemCategory.HeistContract &&
