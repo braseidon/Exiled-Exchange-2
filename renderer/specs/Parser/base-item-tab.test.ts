@@ -360,3 +360,67 @@ describe("Base Item tab content — tablets show only the bare base", () => {
     });
   }
 });
+
+describe("Base Item tab — prices the normal base for waystones/tablets", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  // A normal tablet has no rolled mods — just the base + implicit.
+  const NORMAL_TABLET = `Item Class: Tablet
+Rarity: Normal
+Irradiated Tablet
+--------
+Item Level: 79
+--------
+{ Implicit Modifier }
+Adds Irradiated to a Map
+10 uses remaining
+--------
+Can be used in a personal Map Device to add modifiers to a Map.`;
+
+  const tab = (raw: string, id: string) =>
+    createPresets(
+      parseClipboard(raw)._unsafeUnwrap(),
+      PRESET_OPTS,
+    ).presets.find((p) => p.id === id)!;
+
+  // The base tab is pinned to a selected "Normal" badge for every checked
+  // rarity — the normal base is the commodity (worth multiples of magic/rare).
+  it.each([
+    ["rare tablet", () => tab(rawByName("rare tablet"), BASE)],
+    ["magic tablet", () => tab(rawByName("magic tablet"), BASE)],
+    ["normal tablet", () => tab(NORMAL_TABLET, BASE)],
+    ["rare waystone", () => tab(rawByName("clean rare waystone"), BASE)],
+    ["magic waystone", () => tab(rawByName("magic waystone"), BASE)],
+  ])("%s base tab → Normal, selected", (_name, getBase) => {
+    const base = getBase();
+    expect(base.filters.rarity?.value).toBe("normal");
+    expect(base.filters.rarity?.disabled).toBe(false);
+  });
+
+  // The active tab still prices the item as its own rarity — only the base tab
+  // diverges to normal.
+  it("magic tablet active (exact) tab keeps Magic", () => {
+    const active = tab(rawByName("magic tablet"), EXACT);
+    expect(active.filters.rarity?.value).toBe("magic");
+    expect(active.filters.rarity?.disabled).toBe(false);
+  });
+
+  it("rare tablet active (exact) tab stays nonunique", () => {
+    expect(tab(rawByName("rare tablet"), EXACT).filters.rarity?.value).toBe(
+      "nonunique",
+    );
+  });
+
+  // Scope guard: gear/jewel bases are NOT pinned — a shell trades across
+  // rarities, so its base tab stays any-non-unique.
+  it("rare jewel base tab stays nonunique (not pinned to normal)", () => {
+    const base = tab(
+      rawByName("rare jewel with crafted + fractured mods"),
+      BASE,
+    );
+    expect(base.filters.rarity?.value).toBe("nonunique");
+  });
+});

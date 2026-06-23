@@ -11,6 +11,18 @@ import { createUniquePresets, PRESET_UNIQUES } from "./create-unique-filters";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V"];
 
+// The Base Item tab on waystones (Map) and tablets prices the *normal* base —
+// the rarity that trades as its own commodity (white waystones for rolling,
+// normal tablets for chancing/value), often worth several times the magic/rare
+// version. Pin the rarity badge to a selected "Normal" (toggleable off → any
+// non-unique) regardless of the checked item's rarity. Gear/jewel bases stay
+// non-unique: a shell trades across rarities. Done here, not in createFilters,
+// because the active and base tabs share one createFilters call — only the base
+// preset diverges to normal.
+function pinBaseTabToNormal(preset: FilterPreset): void {
+  preset.filters.rarity = { value: "normal", disabled: false };
+}
+
 export function createPresets(
   item: ParsedItem,
   opts: {
@@ -77,6 +89,7 @@ export function createPresets(
           (filter) => filter.statRef === "# uses remaining",
         ),
       };
+      pinBaseTabToNormal(baseItemPreset);
       return {
         active: "filters.preset_exact",
         presets: [exactPreset, baseItemPreset],
@@ -140,6 +153,9 @@ export function createPresets(
     filters: createFilters(item, { ...opts, exact: true }),
     stats: baseItemStats,
   };
+  if (item.category === ItemCategory.Map) {
+    pinBaseTabToNormal(baseItemPreset);
+  }
 
   return {
     active: pseudoPreset.id,
