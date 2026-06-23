@@ -312,6 +312,30 @@ describe("Base Item tab content — charms hide rolled mods (any rarity)", () =>
   });
 });
 
+describe("Base Item tab content — waystones get a corrupted toggle (base only)", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  const waystonePresets = () =>
+    createPresets(
+      parseClipboard(rawByName("clean rare waystone"))._unsafeUnwrap(),
+      PRESET_OPTS,
+    ).presets;
+
+  it("base tab exposes the corrupted toggle, defaulting to Not Corrupted", () => {
+    const base = waystonePresets().find((p) => p.id === BASE)!;
+    expect(base.filters.corrupted).toBeDefined();
+    expect(base.filters.corrupted?.value).toBe(false);
+  });
+
+  it("pseudo tab keeps no corrupted toggle (searched by its mods)", () => {
+    const pseudo = waystonePresets().find((p) => p.id === PSEUDO)!;
+    expect(pseudo.filters.corrupted).toBeUndefined();
+  });
+});
+
 describe("Base Item tab content — tablets show only the bare base", () => {
   beforeEach(async () => {
     setupTests();
@@ -323,6 +347,16 @@ describe("Base Item tab content — tablets show only the bare base", () => {
       const stats = baseItemStats(rawByName(name));
       expect(stats.map((s) => s.statRef)).toEqual(["# uses remaining"]);
       expect(stats[0].disabled).toBe(false);
+    });
+
+    it(`${name}: no corrupted toggle on any tab (tablets can't be corrupted)`, () => {
+      const { presets } = createPresets(
+        parseClipboard(rawByName(name))._unsafeUnwrap(),
+        PRESET_OPTS,
+      );
+      for (const preset of presets) {
+        expect(preset.filters.corrupted).toBeUndefined();
+      }
     });
   }
 });

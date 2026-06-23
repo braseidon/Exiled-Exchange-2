@@ -330,8 +330,14 @@ export function createFilters(
 
   if (
     !item.isUnmodifiable &&
-    // Ignore waystones now(prev tablets) since if  there is one that is corrupted with right mods buyer wont care
-    item.category !== ItemCategory.Map &&
+    // Tablets can't be corrupted, so the toggle is meaningless — never show it
+    // (the search stays unconstrained = "any", which is every tablet anyway).
+    item.category !== ItemCategory.Tablet &&
+    // Waystones skip the corrupted toggle on the Pseudo tab — a buyer searching
+    // a waystone by its mods doesn't care if it's corrupted. The Base Item tab
+    // (opts.exact) keeps it: that search prices the bare base in bulk, where
+    // "Not Corrupted" vs any corruption is a real distinction.
+    (item.category !== ItemCategory.Map || opts.exact) &&
     (item.rarity === ItemRarity.Normal ||
       item.rarity === ItemRarity.Magic ||
       item.rarity === ItemRarity.Rare ||
