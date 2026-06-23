@@ -364,12 +364,7 @@ export function createFilters(
       value: "normal",
       disabled: false,
     };
-  } else if (
-    item.rarity === ItemRarity.Magic &&
-    opts.exact &&
-    // Ignore tablet since they should be compared to rare ones
-    item.category !== ItemCategory.Tablet
-  ) {
+  } else if (item.rarity === ItemRarity.Magic && opts.exact) {
     filters.rarity = {
       value: "magic",
       disabled: false,
