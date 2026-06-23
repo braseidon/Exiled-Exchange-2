@@ -16,6 +16,7 @@ touch your existing Exiled Exchange 2.
 - **Search any resistance individually** — items with several elemental resistances now keep every one available under "show hidden" (only the highest-rolled was kept before), so you can search a specific resistance (Cold, Fire, or Lightning) without adding it on the trade site
 - **Base Item tab on every non-unique item** — price the bare base of gear, jewels, waystones, charms, and tablets (including corrupted, crafted, or quality items), not just a lucky few. On rares and charms it shows only the base itself — its fracture, quality, and item level — so you can value the shell or find instant-sellers of the base
 - **Un-lock the rarity on Normal/Magic items** — the auto-selected Magic/Normal badge can now be clicked off to widen the search to any non-unique item, instead of being stuck on
+- **Corrupted filter on the waystone Base Item tab** — checking a waystone's base now offers a Corrupted: No / Any toggle (defaults to No), so you can find non-corrupted waystones on trade. It's hidden on tablets (which can't be corrupted), and the toggle's labels now read "Corrupted: No / Any" everywhere — clearer than the old "Corrupted / Not Corrupted"
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
@@ -24,6 +25,7 @@ touch your existing Exiled Exchange 2.
 - **No more tablet crash** — fixed a crash when price-checking certain tablets
 - **Items with a hidden desecrated affix don't force item level into the Pseudo search** — only the Base Item tab uses it, so the Pseudo tab searches on the visible mods like any other item
 - **Hidden desecrated affixes are labeled "Desecrated"** — the price-check toggle no longer shows the old "Veiled" term
+- **"Has empty modifier" no longer shows a phantom open affix** on items past their modifier cap (e.g. after a "+1 to maximum modifiers" craft was removed)
 
 ---
 

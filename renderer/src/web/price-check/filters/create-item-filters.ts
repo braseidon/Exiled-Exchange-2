@@ -335,8 +335,8 @@ export function createFilters(
     item.category !== ItemCategory.Tablet &&
     // Waystones skip the corrupted toggle on the Pseudo tab — a buyer searching
     // a waystone by its mods doesn't care if it's corrupted. The Base Item tab
-    // (opts.exact) keeps it: that search prices the bare base in bulk, where
-    // "Not Corrupted" vs any corruption is a real distinction.
+    // (opts.exact) keeps it: when pricing the bare base, "Not Corrupted" vs any
+    // corruption is a real distinction.
     (item.category !== ItemCategory.Map || opts.exact) &&
     (item.rarity === ItemRarity.Normal ||
       item.rarity === ItemRarity.Magic ||
