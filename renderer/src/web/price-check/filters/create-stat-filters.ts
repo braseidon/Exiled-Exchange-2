@@ -905,11 +905,14 @@ function showHasEmptyModifier(ctx: FiltersCreationContext):
     maxAmount[ItemHasEmptyModifier.Suffix] - suffixes,
   );
 
-  // No open affix slots to advertise — either the item is full, or it sits over
-  // the modeled cap because a "+# to maximum modifiers" craft was applied then
-  // removed (the extra affix stays, so current count exceeds max). Clamping
-  // keeps that from surfacing a nonsensical negative empty slot.
-  if (total === 0 || prefixRoom + suffixRoom === 0) {
+  // No open affix slots to advertise — the item is at (or over) the global
+  // modifier cap, so there's no room for another affix even if one slot type
+  // still looks unfilled. Over-cap happens when a "+# to maximum modifiers"
+  // craft was applied then removed (the extra affix stays, so the count exceeds
+  // max); a lopsided over-cap item (e.g. 4 prefix / 2 suffix) keeps per-side
+  // room on the under-filled side, so gate on the total — not on
+  // prefixRoom + suffixRoom, which misses that case.
+  if (total === 0 || total >= maxAmount[ItemHasEmptyModifier.Any]) {
     return false;
   }
 
@@ -1014,4 +1017,5 @@ function itemMaxModifiersBySlot(
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const __testExports = {
   itemMaxModifiersBySlot,
+  showHasEmptyModifier,
 };
