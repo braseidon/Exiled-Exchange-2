@@ -17,15 +17,18 @@ touch your existing Exiled Exchange 2.
 - **Base Item tab on every non-unique item** — price the bare base of gear, jewels, waystones, charms, and tablets (including corrupted, crafted, or quality items), not just a lucky few. On rares and charms it shows only the base itself — its fracture, quality, and item level — so you can value the shell or find instant-sellers of the base
 - **Un-lock the rarity on Normal/Magic items** — the auto-selected Magic/Normal badge can now be clicked off to widen the search to any non-unique item, instead of being stuck on
 - **Corrupted filter on the waystone Base Item tab** — checking a waystone's base now offers a Corrupted: No / Any toggle (defaults to No), so you can find non-corrupted waystones on trade. It's hidden on tablets (which can't be corrupted), and the toggle's labels now read "Corrupted: No / Any" everywhere — clearer than the old "Corrupted / Not Corrupted"
+- **The Base Item tab prices the normal base of waystones & tablets** — switching a waystone or tablet to its Base Item tab now defaults to a "Normal" rarity toggle (click it off to widen to any non-unique), so you get the normal-rarity price directly instead of a mix of rarities. Makes the base tab a quick way to value or bulk-buy normal waystones and tablets
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
 - **Chat-linked uniques show their mods up front** — instead of hiding every mod behind the "Hidden" toggle, a chat-linked unique now lists its mods with values pre-filled (about your fill % below the roll); the "Limited data" banner still notes exact ranges aren't available
+- **The "show hidden" mods toggle stays visible when every mod is hidden** — you can still reveal them, instead of being left with no toggle to click
 - **Fractured perfect rolls respect your fill %** in the Pseudo tab (they were pinned to the exact value)
 - **No more tablet crash** — fixed a crash when price-checking certain tablets
 - **Items with a hidden desecrated affix don't force item level into the Pseudo search** — only the Base Item tab uses it, so the Pseudo tab searches on the visible mods like any other item
 - **Hidden desecrated affixes are labeled "Desecrated"** — the price-check toggle no longer shows the old "Veiled" term
 - **"Has empty modifier" no longer shows a phantom open affix** on items past their modifier cap (e.g. after a "+1 to maximum modifiers" craft was removed)
+- **Magic tablets price against magic on the main tab** — they were searching any non-unique rarity (lumping them in with rares), which could misprice them; the main tab now constrains to magic, like other magic items
 
 ---
 
