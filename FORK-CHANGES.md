@@ -19,6 +19,7 @@ touch your existing Exiled Exchange 2.
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
+- **Chat-linked uniques show their mods up front** — instead of hiding every mod behind the "Hidden" toggle, a chat-linked unique now lists its mods with values pre-filled (about your fill % below the roll); the "Limited data" banner still notes exact ranges aren't available
 - **Fractured perfect rolls respect your fill %** in the Pseudo tab (they were pinned to the exact value)
 - **No more tablet crash** — fixed a crash when price-checking certain tablets
 - **Items with a hidden desecrated affix don't force item level into the Pseudo search** — only the Base Item tab uses it, so the Pseudo tab searches on the visible mods like any other item

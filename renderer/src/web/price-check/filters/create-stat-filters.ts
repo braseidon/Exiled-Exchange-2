@@ -498,10 +498,14 @@ export function calculatedStatToFilter(
         ))
     ) {
       const perfectRoll =
-        (calc.stat.better === StatBetter.PositiveRoll &&
+        // A chat-link (simple copy) carries no range, so value === max makes
+        // every mod look like a perfect roll — don't zero the fill for those.
+        // Skills stay exact (a unique grants a fixed skill level).
+        (!item.isSimpleCopy || filter.tag === FilterTag.Skill) &&
+        ((calc.stat.better === StatBetter.PositiveRoll &&
           roll.value >= roll.max) ||
-        (calc.stat.better === StatBetter.NegativeRoll &&
-          roll.value <= roll.min);
+          (calc.stat.better === StatBetter.NegativeRoll &&
+            roll.value <= roll.min));
       if (perfectRoll) {
         percent = 0;
       }
@@ -534,7 +538,7 @@ export function calculatedStatToFilter(
       isUnscalable ||
       subStepFill
         ? { min: roll.value, max: roll.value }
-        : item.rarity === ItemRarity.Unique
+        : item.rarity === ItemRarity.Unique && !item.isSimpleCopy
           ? {
               min: percentRollDelta(
                 roll.value,
@@ -623,7 +627,17 @@ function hideNotVariableStat(filter: StatFilter, item: ParsedItem) {
 
   if (!filter.roll) {
     filter.hidden = "filters.hide_const_roll";
-  } else if (!filter.roll.bounds && item.rarity === ItemRarity.Unique) {
+  } else if (
+    !filter.roll.bounds &&
+    item.rarity === ItemRarity.Unique &&
+    // Simple-copy (chat-linked) items carry no tier ranges, so EVERY unique mod
+    // looks "constant" here and would be hidden — burying the whole item behind
+    // the "show hidden" toggle. Keep them visible (the Limited-data banner
+    // already flags that values aren't reliable). Genuinely value-less mods are
+    // still hidden by the `!filter.roll` branch above, and augments by
+    // hideAllAugments, so this matches the rich-copy visible set.
+    !item.isSimpleCopy
+  ) {
     filter.roll.min = undefined;
     filter.roll.max = undefined;
     filter.hidden = "filters.hide_const_roll";
