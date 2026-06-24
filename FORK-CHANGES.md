@@ -20,6 +20,7 @@ touch your existing Exiled Exchange 2.
 - **Corrupted filter on the waystone Base Item tab** — checking a waystone's base now offers a Corrupted: No / Any toggle (defaults to No), so you can find non-corrupted waystones on trade. It's hidden on tablets (which can't be corrupted), and the toggle's labels now read "Corrupted: No / Any" everywhere — clearer than the old "Corrupted / Not Corrupted"
 - **The Base Item tab prices the normal base of waystones & tablets** — switching a waystone or tablet to its Base Item tab now defaults to a "Normal" rarity toggle (click it off to widen to any non-unique), so you get the normal-rarity price directly instead of a mix of rarities. Makes the base tab a quick way to value or bulk-buy normal waystones and tablets
 - **Faster, cleaner currency-exchange checks** — everything on the currency exchange (currency, gems, fragments, runes, soul cores, idols, and the rest) shows its poe.ninja price instantly and no longer auto-runs a live trade search on every check (which could hit the rate limit when you rapid-check currency) — press Search for the live order book. These items also drop the irrelevant Base Item tab, mod filters, and empty stat list, so you get one clean view
+- **Uncut gem price ladder** — checking any uncut gem (Skill, Spirit, or Support) fills the side panel with that type's price at every level, with the checked level highlighted — a quick read of what each level is going for
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
