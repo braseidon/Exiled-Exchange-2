@@ -19,6 +19,7 @@ touch your existing Exiled Exchange 2.
 - **Un-lock the rarity on Normal/Magic items** — the auto-selected Magic/Normal badge can now be clicked off to widen the search to any non-unique item, instead of being stuck on
 - **Corrupted filter on the waystone Base Item tab** — checking a waystone's base now offers a Corrupted: No / Any toggle (defaults to No), so you can find non-corrupted waystones on trade. It's hidden on tablets (which can't be corrupted), and the toggle's labels now read "Corrupted: No / Any" everywhere — clearer than the old "Corrupted / Not Corrupted"
 - **The Base Item tab prices the normal base of waystones & tablets** — switching a waystone or tablet to its Base Item tab now defaults to a "Normal" rarity toggle (click it off to widen to any non-unique), so you get the normal-rarity price directly instead of a mix of rarities. Makes the base tab a quick way to value or bulk-buy normal waystones and tablets
+- **Faster, cleaner currency-exchange checks** — idols, runes, soul cores, and currency show their poe.ninja price instantly and no longer auto-run a live trade search on every check (which could hit the rate limit when you rapid-check currency) — press Search for the live order book. These items also drop the irrelevant Base Item tab and mod filters
 
 ### Fixes
 - **Chat-linked items price-check correctly** — with a "Limited data" badge when the info is reduced
@@ -30,6 +31,9 @@ touch your existing Exiled Exchange 2.
 - **Hidden desecrated affixes are labeled "Desecrated"** — the price-check toggle no longer shows the old "Veiled" term
 - **"Has empty modifier" no longer shows a phantom open affix** on items past their modifier cap (e.g. after a "+1 to maximum modifiers" craft was removed)
 - **Magic tablets price against magic on the main tab** — they were searching any non-unique rarity (lumping them in with rares), which could misprice them; the main tab now constrains to magic, like other magic items
+- **The poe.ninja price shows instantly** — removed an artificial ~1-second delay that hid the price behind a spinner on every check
+- **"No price data" notice for untracked items** — a handful of items GGG's trade and poe.ninja don't list yet (e.g. the Hawk, Panther, and Stoat idols) now show a clear notice instead of deceptive face-to-face listings
+- **Abyssal Gazes price on the currency exchange** — they were stuck on face-to-face trade
 
 ---
 
