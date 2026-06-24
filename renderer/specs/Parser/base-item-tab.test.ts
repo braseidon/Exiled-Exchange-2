@@ -279,6 +279,48 @@ Sceptres: Companions have 12% increased Attack Speed
 Place into an empty Augment Socket in a Body Armour or Sceptre to apply its effect to that item. Once socketed it cannot be retrieved but can be replaced by other Augment items.
 Shift click to unstack.`,
   },
+  {
+    // currency-exchange commodity: a stackable orb traded by its base. It carries
+    // a tradeTag *and* a craftable category ("Currency"), so the !craftable guard
+    // above misses it — without the tradeTag arm it falls through to the gear/rare
+    // path and wrongly grows a Pseudo + Base Item tab. One Exact tab, like upstream.
+    name: "currency-exchange orb (Orb of Alchemy)",
+    expected: [EXACT],
+    raw: `Item Class: Stackable Currency
+Rarity: Currency
+Orb of Alchemy
+--------
+Stack Size: 11/20
+--------
+Upgrades a Normal item to a Rare item with new random modifiers
+--------
+Shift click to unstack.`,
+  },
+  {
+    // a different exchange category (Gems) — proves the tradeTag rule spans more
+    // than currency. The leveled name resolves to a tradeTag'd entry.
+    name: "currency-exchange gem (Uncut Skill Gem)",
+    expected: [EXACT],
+    raw: `Item Class: Uncut Skill Gems
+Rarity: Currency
+Uncut Skill Gem (Level 19)
+--------
+Creates a Skill Gem or Level an existing gem to level 19
+--------
+Right Click to engrave a Skill Gem.`,
+  },
+  {
+    // a third exchange category (Fragments) — same rule, different base category.
+    name: "currency-exchange fragment (Simulacrum)",
+    expected: [EXACT],
+    raw: `Item Class: Map Fragments
+Rarity: Currency
+Simulacrum
+--------
+Stack Size: 1/10
+--------
+Travel to the Simulacrum by using this item in a Personal Map Device. Can only be used once.`,
+  },
 ];
 
 describe("Base Item tab presence", () => {

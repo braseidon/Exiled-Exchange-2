@@ -72,11 +72,16 @@ export function createPresets(
       item.category === ItemCategory.Wombgift) &&
       item.rarity !== ItemRarity.Unique) ||
     (item.category === ItemCategory.Currency && item.trials?.numberOfTrials) ||
-    // Currency-exchange socketables (idols / runes / soul cores — all SoulCore
-    // bases) are commodities traded by their base, like other currency: one
-    // Exact tab, no Pseudo/Base Item tab. They're craftable, so they'd otherwise
+    // Currency-exchange commodities are traded by their base, like currency: one
+    // Exact tab, no Pseudo/Base Item tab. A tradeTag is exactly what routes an
+    // item to the exchange (apiToSatisfySearch), so it spans every exchange
+    // category (currency, gems, fragments, omens, runes, soul cores, …) and never
+    // touches gear/waystones/tablets (none carry a tradeTag). The SoulCore arm
+    // also catches the three untagged idols (Hawk/Panther/Stoat), which sit on
+    // the exchange without a tradeTag. All are craftable, so without this they'd
     // fall through to the gear/rare path below and wrongly gain a Base Item tab.
-    (item.info.craftable?.category === ItemCategory.SoulCore &&
+    ((item.info.tradeTag != null ||
+      item.info.craftable?.category === ItemCategory.SoulCore) &&
       item.rarity !== ItemRarity.Unique)
   ) {
     const exactPreset: FilterPreset = {
