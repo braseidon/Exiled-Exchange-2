@@ -76,8 +76,10 @@ class TradeStore:
                         and (
                             "precursor-tablet" not in tag
                             and "idol-of-estazunti" not in tag
-                            and "gaze" not in tag
                             and "waystone" not in tag
+                            # wombgifts are kept on the trade search (Instant
+                            # buyout), not the currency exchange — see 42e0046f
+                            and "wombgift" not in tag
                         )
                         else None,
                         "text": entry.get("text"),
