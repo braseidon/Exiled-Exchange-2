@@ -17,11 +17,7 @@
       class="mb-2 flex items-baseline gap-x-2 rounded bg-orange-700 px-2 py-1 text-sm"
     >
       <i class="shrink-0 fas fa-exclamation-triangle"></i>
-      <span>{{
-        t(
-          "No price data — this item isn't tracked by poe.ninja or GGG's trade API yet.",
-        )
-      }}</span>
+      <span>{{ t("No price data — this item isn't on poe.ninja yet.") }}</span>
     </div>
     <!-- <price-prediction v-if="showPredictedPrice" class="mb-4" :item="item" /> -->
     <!-- <price-trend v-else :item="item" :filters="itemFilters" /> -->
