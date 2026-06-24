@@ -3,13 +3,25 @@
     <filter-name :filters="itemFilters" :item="item" />
     <div
       v-if="item.isSimpleCopy"
-      class="mb-2 px-2 py-1 rounded bg-orange-700 text-xs"
+      class="mb-2 flex items-baseline gap-x-2 rounded bg-orange-700 px-2 py-1 text-sm"
     >
-      {{
+      <i class="shrink-0 fas fa-exclamation-triangle"></i>
+      <span>{{
         t(
-          "Limited data — copied without advanced descriptions. Tier/range filters unavailable; hover the real item for full data.",
+          "Copied from chat — mod ranges are missing, so filters may be off. Hover the real item for full data.",
         )
-      }}
+      }}</span>
+    </div>
+    <div
+      v-if="noPriceData"
+      class="mb-2 flex items-baseline gap-x-2 rounded bg-orange-700 px-2 py-1 text-sm"
+    >
+      <i class="shrink-0 fas fa-exclamation-triangle"></i>
+      <span>{{
+        t(
+          "No price data — this item isn't tracked by poe.ninja or GGG's trade API yet.",
+        )
+      }}</span>
     </div>
     <!-- <price-prediction v-if="showPredictedPrice" class="mb-4" :item="item" /> -->
     <!-- <price-trend v-else :item="item" :filters="itemFilters" /> -->
@@ -25,7 +37,7 @@
       :rebuild-key="rebuildKey"
     />
     <trade-listing
-      v-if="tradeAPI === 'trade' && doSearch"
+      v-if="tradeAPI === 'trade' && doSearch && !noPriceData"
       ref="tradeService"
       :filters="itemFilters"
       :stats="itemStats"
@@ -37,7 +49,10 @@
       :filters="itemFilters"
       :item="item"
     />
-    <div v-if="!doSearch" class="flex justify-between items-center">
+    <div
+      v-if="!doSearch && !noPriceData"
+      class="flex justify-between items-center"
+    >
       <div class="flex w-40" @mouseenter="handleSearchMouseenter">
         <button class="btn" @click="doSearch = true" style="min-width: 5rem">
           {{ t("Search") }}
@@ -88,6 +103,8 @@ import TradeBulk from "./trade/TradeBulk.vue";
 import TradeLinks from "./trade/TradeLinks.vue";
 import { apiToSatisfySearch, getTradeEndpoint } from "./trade/common";
 import PriceTrend from "./trends/PriceTrend.vue";
+import { getDetailsId } from "./trends/getDetailsId";
+import { usePoeninja } from "@/web/background/Prices";
 import FiltersBlock from "./filters/FiltersBlock.vue";
 import { createPresets } from "./filters/create-presets";
 import PricePrediction from "./price-prediction/PricePrediction.vue";
@@ -138,6 +155,7 @@ export default defineComponent({
   setup(props, ctx) {
     const widget = computed(() => AppConfig<PriceCheckWidget>("price-check")!);
     const leagues = useLeagues();
+    const { findPriceByQuery } = usePoeninja();
 
     const presets = ref<{ active: string; presets: FilterPreset[] }>(null!);
     const itemFilters = computed(
@@ -219,6 +237,12 @@ export default defineComponent({
 
         if (tradeAPI.value === "bulk") {
           itemFilters.value.trade.listingType = "online";
+          // Currency-exchange items: PriceTrend already shows the poe.ninja
+          // exchange price with no per-check API call, so don't auto-fire the live
+          // GGG exchange search — rapid currency checks otherwise drain the
+          // separate exchange rate limit. Wait for the user to press Search to pull
+          // the live order book on demand.
+          doSearch.value = false;
         }
         performance.mark("checked-item-switch-item-end");
       },
@@ -285,6 +309,24 @@ export default defineComponent({
         props.item.isUnidentified &&
         props.item.info.unique == null
       );
+    });
+
+    // Currency-exchange socketables (idols / soul cores) with no GGG trade
+    // tradeTag fall back to face-to-face trade listings, and a few (the
+    // Hawk/Panther/Stoat idols) aren't on poe.ninja either — so no reliable
+    // price shows at all. Warn instead of leaving the price area blank.
+    // (Rarity "Currency" sets item.category to Currency, so key on the base's
+    // craftable.category, not item.category — see Parser.ts.)
+    const noPriceData = computed(() => {
+      const item = props.item;
+      if (
+        item.info.craftable?.category !== ItemCategory.SoulCore ||
+        item.info.tradeTag
+      ) {
+        return false;
+      }
+      const detailsId = getDetailsId(item);
+      return !(detailsId && findPriceByQuery(detailsId));
     });
 
     function handleSearchMouseenter(e: MouseEvent) {
@@ -357,6 +399,7 @@ export default defineComponent({
       filtersComponent,
       showTip,
       noUniqueSelection,
+      noPriceData,
       handleSearchMouseenter,
       showSupportLinks,
       presets: computed(() =>
