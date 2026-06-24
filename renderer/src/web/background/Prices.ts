@@ -231,6 +231,9 @@ export const usePoeninja = createGlobalState(() => {
 
       lastUpdateTime = Date.now();
     } catch (e) {
+      // A newer load() intentionally aborts the in-flight request (see ~L167);
+      // that cancellation isn't a real error, so don't log it as one.
+      if (e instanceof DOMException && e.name === "AbortError") return;
       console.warn(e);
     } finally {
       isLoading.value = false;
