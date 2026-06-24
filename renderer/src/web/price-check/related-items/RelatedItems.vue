@@ -53,6 +53,7 @@ import { usePoeninja, CurrencyValue } from "@/web/background/Prices";
 import { getDetailsId } from "../trends/getDetailsId";
 import { ParsedItem } from "@/parser";
 import ItemQuickPrice from "@/web/ui/ItemQuickPrice.vue";
+import { isUncutGem, uncutGemLadder } from "./uncut-gem-ladder";
 
 const { findPriceByQuery, autoCurrency, ITEM_DROP } = usePoeninja();
 
@@ -117,6 +118,22 @@ function getItemPrices(queryId: string) {
   return out;
 }
 
+// Uncut gems (Skill / Spirit / Support) show the whole level ladder of their own
+// type instead of an item-drop group: a quick read of the going rate per level.
+function getUncutGemPrices(item: ParsedItem) {
+  const rows = uncutGemLadder(item);
+  if (!rows.length) return null;
+  return {
+    related: rows.map((row) => ({
+      icon: row.icon,
+      name: row.name,
+      price: findPriceByQueryId(`${row.ns}::${row.ref}`),
+      highlight: row.ref === item.info.refName,
+    })),
+    items: [] as Array<{ name: string; icon: string; price?: CurrencyValue }>,
+  };
+}
+
 export default defineComponent({
   components: { ItemQuickPrice },
   props: {
@@ -132,6 +149,10 @@ export default defineComponent({
   setup(props) {
     const result = computed(() => {
       if (!props.item) return;
+
+      if (isUncutGem(props.item)) {
+        return getUncutGemPrices(props.item) ?? undefined;
+      }
 
       const queryId = getDetailsId(props.item);
       if (!queryId) return;
