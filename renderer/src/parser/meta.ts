@@ -64,6 +64,7 @@ export enum ItemCategory {
   MapFragment = "MapFragment",
   Talisman = "Talisman",
   Augment = "Augment",
+  SoulCore = "SoulCore",
   Wombgift = "BrequelFruit",
 }
 

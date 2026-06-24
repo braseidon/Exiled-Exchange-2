@@ -71,7 +71,13 @@ export function createPresets(
       item.category === ItemCategory.Tablet ||
       item.category === ItemCategory.Wombgift) &&
       item.rarity !== ItemRarity.Unique) ||
-    (item.category === ItemCategory.Currency && item.trials?.numberOfTrials)
+    (item.category === ItemCategory.Currency && item.trials?.numberOfTrials) ||
+    // Currency-exchange socketables (idols / runes / soul cores — all SoulCore
+    // bases) are commodities traded by their base, like other currency: one
+    // Exact tab, no Pseudo/Base Item tab. They're craftable, so they'd otherwise
+    // fall through to the gear/rare path below and wrongly gain a Base Item tab.
+    (item.info.craftable?.category === ItemCategory.SoulCore &&
+      item.rarity !== ItemRarity.Unique)
   ) {
     const exactPreset: FilterPreset = {
       id: "filters.preset_exact",

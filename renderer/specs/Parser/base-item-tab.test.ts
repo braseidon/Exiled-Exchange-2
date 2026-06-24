@@ -256,6 +256,29 @@ Abysses in Map have 17(10-20)% increased chance to lead to an Abyssal Depths
 --------
 Can be used in a personal Map Device to add modifiers to a Map.`,
   },
+  {
+    // currency-exchange socketable (idol / rune / soul core): a commodity traded
+    // by its base on the exchange — one Exact tab, no Pseudo/Base Item tab. It's
+    // craftable (SoulCore base), so without the SoulCore guard it falls through
+    // to the gear/rare path and wrongly gains a Base Item tab.
+    name: "currency-exchange idol",
+    expected: [EXACT],
+    raw: `Item Class: Augment
+Rarity: Currency
+Hawk Idol
+--------
+Stack Size: 3/10
+Idol
+Limited to: 1
+--------
+Requires: Level 50
+--------
+Body Armours: 10% increased Deflection Rating
+Sceptres: Companions have 12% increased Attack Speed
+--------
+Place into an empty Augment Socket in a Body Armour or Sceptre to apply its effect to that item. Once socketed it cannot be retrieved but can be replaced by other Augment items.
+Shift click to unstack.`,
+  },
 ];
 
 describe("Base Item tab presence", () => {
