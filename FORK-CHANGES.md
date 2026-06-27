@@ -37,6 +37,7 @@ touch your existing Exiled Exchange 2.
 - **The poe.ninja price shows instantly** — removed an artificial ~1-second delay that hid the price behind a spinner on every check
 - **"No price data" notice for untracked items** — a handful of items GGG's trade and poe.ninja don't list yet (e.g. the Hawk, Panther, and Stoat idols) now show a clear notice instead of deceptive face-to-face listings
 - **Abyssal Gazes price on the currency exchange** — they were stuck on face-to-face trade
+- **Bulk Item Exchange bait warning** — opening a currency item's bulk listings (press Search) now flags that those listings are often price-fixing bait and points you to the in-game Currency Exchange
 
 ---
 
