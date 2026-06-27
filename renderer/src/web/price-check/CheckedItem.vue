@@ -39,6 +39,17 @@
       :stats="itemStats"
       :item="item"
     />
+    <div
+      v-if="tradeAPI === 'bulk' && doSearch"
+      class="mb-2 flex items-baseline gap-x-2 rounded bg-orange-700 px-2 py-1 text-sm"
+    >
+      <i class="shrink-0 fas fa-exclamation-triangle"></i>
+      <span>{{
+        t(
+          "Bulk Item Exchange listings are unreliable — often price-fixing bait. Trade these at the in-game Currency Exchange (Ange) instead.",
+        )
+      }}</span>
+    </div>
     <trade-bulk
       v-if="tradeAPI === 'bulk' && doSearch"
       ref="tradeService"
