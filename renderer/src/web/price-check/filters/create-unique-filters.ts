@@ -2,6 +2,7 @@ import { ParsedItem } from "@/parser";
 import { ModifierType, StatCalculated } from "@/parser/modifiers";
 import { FilterPreset, StatFilter } from "./interfaces";
 import {
+  applyBeltRules,
   calculatedStatToFilter,
   FiltersCreationContext,
 } from "./create-stat-filters";
@@ -150,6 +151,19 @@ function createMagebloodFilters(
     if (filter.hidden === "dont_hide_me") {
       filter.hidden = undefined;
     }
+  }
+
+  // Mageblood is a belt: cap/enable its charm-slot filter like any other belt
+  // (this path bypasses the normal finalFilterTweaks dispatch).
+  applyBeltRules(ctx.filters);
+
+  // With no duplicate legacies, the "increased effect per duplicate" mod does
+  // nothing, so searching its roll is pointless — uncheck it by default.
+  if (duplicates === 0) {
+    const effectFilter = ctx.filters.find((f) =>
+      f.statRef.startsWith("All Mage's Legacies"),
+    );
+    if (effectFilter) effectFilter.disabled = true;
   }
 
   return ctx.filters;

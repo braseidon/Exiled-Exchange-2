@@ -695,6 +695,8 @@ export function finalFilterTweaks(ctx: FiltersCreationContext) {
     applyClusterJewelRules(ctx.filters);
   } else if (item.category === ItemCategory.Flask) {
     applyFlaskRules(ctx.filters);
+  } else if (item.category === ItemCategory.Belt) {
+    applyBeltRules(ctx.filters);
   }
 
   if (
@@ -855,6 +857,24 @@ function applyFlaskRules(filters: StatFilter[]) {
     if (filter.tag === FilterTag.Enchant && !usedEnkindling) {
       filter.hidden = "hide_harvest_and_instilling";
       filter.disabled = true;
+    }
+  }
+}
+
+export function applyBeltRules(filters: StatFilter[]) {
+  for (const filter of filters) {
+    // A free campaign charm slot plus a hard cap of 3 total means belt charm
+    // slots above 2 are wasted — a 3-slot belt is worth no more than a 2-slot
+    // one. Enable the filter and cap its searched min at 2 so 2- and 3-slot
+    // belts price as equivalents (the cheaper 2-slot listings set the price).
+    if (filter.statRef === "Has # Charm Slot" && filter.roll) {
+      filter.disabled = false;
+      const currentMin =
+        typeof filter.roll.min === "number"
+          ? filter.roll.min
+          : filter.roll.value;
+      filter.roll.min = Math.min(currentMin, 2);
+      filter.roll.default.min = Math.min(filter.roll.default.min, 2);
     }
   }
 }
