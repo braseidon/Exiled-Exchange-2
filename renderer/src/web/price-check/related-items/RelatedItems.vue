@@ -54,6 +54,7 @@ import { getDetailsId } from "../trends/getDetailsId";
 import { ParsedItem } from "@/parser";
 import ItemQuickPrice from "@/web/ui/ItemQuickPrice.vue";
 import { isUncutGem, uncutGemLadder } from "./uncut-gem-ladder";
+import { currencyFamily } from "./currency-family";
 
 const { findPriceByQuery, autoCurrency, ITEM_DROP } = usePoeninja();
 
@@ -134,6 +135,22 @@ function getUncutGemPrices(item: ParsedItem) {
   };
 }
 
+// Currency-exchange families (e.g. essences) show their whole tier-group's
+// prices side by side, like the uncut-gem ladder, instead of an item-drop group.
+function getCurrencyFamilyPrices(item: ParsedItem) {
+  const rows = currencyFamily(item);
+  if (!rows) return null;
+  return {
+    related: rows.map((row) => ({
+      icon: row.icon,
+      name: row.name,
+      price: findPriceByQueryId(`${row.ns}::${row.ref}`),
+      highlight: row.ref === item.info.refName,
+    })),
+    items: [] as Array<{ name: string; icon: string; price?: CurrencyValue }>,
+  };
+}
+
 export default defineComponent({
   components: { ItemQuickPrice },
   props: {
@@ -153,6 +170,9 @@ export default defineComponent({
       if (isUncutGem(props.item)) {
         return getUncutGemPrices(props.item) ?? undefined;
       }
+
+      const family = getCurrencyFamilyPrices(props.item);
+      if (family) return family;
 
       const queryId = getDetailsId(props.item);
       if (!queryId) return;
