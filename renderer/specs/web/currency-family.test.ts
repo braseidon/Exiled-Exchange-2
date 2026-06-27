@@ -95,3 +95,97 @@ describe("currency family — essences", () => {
     expect(currencyFamily(orb)).toBeNull();
   });
 });
+
+// A currency item resolves by name regardless of the Item Class line, so a
+// single template works for every family below.
+const currency = (name: string) => `Item Class: Stackable Currency
+Rarity: Currency
+${name}
+--------
+Stack Size: 1/10
+--------
+Right click this item then left click an item to apply it.`;
+
+describe("currency family — soul cores", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  const CASES = [
+    { tier: "tier1", checked: "Soul Core of Tacati", size: 4 },
+    { tier: "tier2", checked: "Soul Core of Atmohua", size: 11 },
+    { tier: "tier3", checked: "Atmohua's Soul Core of Retreat", size: 15 },
+  ];
+
+  for (const { tier, checked, size } of CASES) {
+    it(`${checked} → its ${tier} group (${size}), checked one included`, () => {
+      const rows = currencyFamily(parse(currency(checked)));
+      expect(rows).not.toBeNull();
+      expect(rows!.length).toBe(size);
+      expect(rows!.some((r) => r.ref === checked)).toBe(true);
+    });
+  }
+
+  it("does not bleed across soul-core tiers", () => {
+    const t1 = currencyFamily(parse(currency("Soul Core of Tacati")))!;
+    // a tier3 soul core must not appear in the tier1 group
+    expect(t1.some((r) => r.ref === "Atmohua's Soul Core of Retreat")).toBe(
+      false,
+    );
+  });
+});
+
+describe("currency family — catalysts", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  it("a regular catalyst → all 13 regular catalysts, not the jewel set", () => {
+    const rows = currencyFamily(parse(currency("Adaptive Catalyst")))!;
+    expect(rows.length).toBe(13);
+    expect(rows.some((r) => r.ref === "Adaptive Catalyst")).toBe(true);
+    // refined (jewel) catalysts are a separate group
+    expect(rows.some((r) => r.ref === "Refined Adaptive Catalyst")).toBe(false);
+  });
+
+  it("a refined (jewel) catalyst → all 13 jewel catalysts, not the regular set", () => {
+    const rows = currencyFamily(parse(currency("Refined Adaptive Catalyst")))!;
+    expect(rows.length).toBe(13);
+    expect(rows.some((r) => r.ref === "Refined Adaptive Catalyst")).toBe(true);
+    expect(rows.some((r) => r.ref === "Adaptive Catalyst")).toBe(false);
+  });
+});
+
+describe("currency family — runes", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  const CASES = [
+    { tier: "lesser", checked: "Lesser Adept Rune", size: 14 },
+    { tier: "greater", checked: "Greater Adept Rune", size: 15 },
+    { tier: "perfect", checked: "Perfect Adept Rune", size: 15 },
+  ];
+
+  for (const { tier, checked, size } of CASES) {
+    it(`${checked} → its ${tier} group (${size}), checked one included`, () => {
+      const rows = currencyFamily(parse(currency(checked)));
+      expect(rows).not.toBeNull();
+      expect(rows!.length).toBe(size);
+      expect(rows!.some((r) => r.ref === checked)).toBe(true);
+    });
+  }
+
+  it("tiered runes never include the named 'ancient' runes", () => {
+    const greater = currencyFamily(parse(currency("Greater Adept Rune")))!;
+    expect(greater.every((r) => r.ref.startsWith("Greater "))).toBe(true);
+    expect(greater.some((r) => /Ancient Rune|Aldur/.test(r.ref))).toBe(false);
+  });
+
+  it("a named 'ancient' rune gets no sidebar (no natural group)", () => {
+    expect(currencyFamily(parse(currency("Aldur's Legacy")))).toBeNull();
+  });
+});
