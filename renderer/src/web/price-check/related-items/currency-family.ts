@@ -104,6 +104,9 @@ const FAMILIES: Family[] = [
   // Runes — tier sub-tag (rune_lesser/normal/greater/perfect); the named runes
   // carry only the bare `rune` tag → null → excluded.
   { ...byTag("rune"), groupKey: (i) => subTag(i, "rune_") },
+  // Idols — one flat group; the in-game Idol Stash Tab groups only by icon (no
+  // usable text split), so show them all together (two-column, like the omens).
+  { ...byTag("idol"), groupKey: () => "idol" },
   // Omens — no `tags`, so key on the tradeTag prefix; split Abyss vs Ritual.
   {
     scan: "omen-of-",

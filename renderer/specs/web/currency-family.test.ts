@@ -221,3 +221,20 @@ describe("currency family — omens", () => {
     expect(currencyFamily(parse(currency("Uhtred's Omen")))).toBeNull();
   });
 });
+
+describe("currency family — idols", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  it("an idol → all 28 idols in one flat group", () => {
+    const rows = currencyFamily(parse(currency("Idol of the Sycophant")))!;
+    expect(rows.length).toBe(28);
+    expect(rows.some((r) => r.ref === "Idol of the Sycophant")).toBe(true);
+    // the animal idols ("Snake Idol") use the other naming style
+    expect(rows.some((r) => r.ref === "Snake Idol")).toBe(true);
+    // every row is an idol (no cross-family bleed) — both naming styles
+    expect(rows.every((r) => r.ref.includes("Idol"))).toBe(true);
+  });
+});
