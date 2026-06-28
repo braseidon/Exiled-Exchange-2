@@ -189,3 +189,35 @@ describe("currency family — runes", () => {
     expect(currencyFamily(parse(currency("Aldur's Legacy")))).toBeNull();
   });
 });
+
+describe("currency family — omens", () => {
+  beforeEach(async () => {
+    setupTests();
+    await init("en");
+  });
+
+  it("an Abyss omen → the 8-member Abyss group", () => {
+    const rows = currencyFamily(parse(currency("Omen of Light")))!;
+    expect(rows.length).toBe(8);
+    expect(rows.some((r) => r.ref === "Omen of Light")).toBe(true);
+    // a Ritual omen must not bleed into the Abyss group
+    expect(rows.some((r) => r.ref === "Omen of Whittling")).toBe(false);
+  });
+
+  it("a Ritual omen → the 28-member Ritual group (legacy excluded)", () => {
+    const rows = currencyFamily(parse(currency("Omen of Whittling")))!;
+    expect(rows.length).toBe(28);
+    expect(rows.some((r) => r.ref === "Omen of Whittling")).toBe(true);
+    // no Abyss omen, and no PoE1 legacy omen
+    expect(rows.some((r) => r.ref === "Omen of Light")).toBe(false);
+    expect(rows.some((r) => r.ref === "Omen of Corruption")).toBe(false);
+  });
+
+  it("a legacy PoE1 omen gets no sidebar", () => {
+    expect(currencyFamily(parse(currency("Omen of Corruption")))).toBeNull();
+  });
+
+  it("the non-'omen-of-' named omen (Uhtred's) gets no sidebar", () => {
+    expect(currencyFamily(parse(currency("Uhtred's Omen")))).toBeNull();
+  });
+});

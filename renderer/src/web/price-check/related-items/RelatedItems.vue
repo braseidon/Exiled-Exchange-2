@@ -1,5 +1,12 @@
 <template>
-  <div v-if="result" :class="[$style['wrapper'], $style[clickPosition]]">
+  <div
+    v-if="result"
+    :class="[
+      $style['wrapper'],
+      $style[clickPosition],
+      isWide && $style['wide'],
+    ]"
+  >
     <div v-if="'error' in result" class="p-2">
       {{ result.error }}
     </div>
@@ -28,7 +35,12 @@
       v-if="'items' in result && result.items.length"
       class="flex-1 p-2 w-1/2"
     >
-      <div v-for="item in result.items" :key="item.name">
+      <div
+        v-for="item in result.items"
+        :key="item.name"
+        :class="{ 'bg-gray-700': 'highlight' in item && item.highlight }"
+        class="rounded px-1"
+      >
         <item-quick-price
           currency-text
           fraction
@@ -135,20 +147,38 @@ function getUncutGemPrices(item: ParsedItem) {
   };
 }
 
-// Currency-exchange families (e.g. essences) show their whole tier-group's
+type FamilyCell = {
+  name: string;
+  icon: string;
+  price?: CurrencyValue;
+  highlight: boolean;
+};
+
+// A family larger than this overflows a single column on a normal screen, so
+// it's split across both columns in a wider panel (e.g. the ~28 Ritual omens).
+// Smaller families (essences, runes, …) stay single-column.
+const MAX_SINGLE_COLUMN_ROWS = 20;
+
+// Currency-exchange families (e.g. essences, omens) show their whole group's
 // prices side by side, like the uncut-gem ladder, instead of an item-drop group.
 function getCurrencyFamilyPrices(item: ParsedItem) {
   const rows = currencyFamily(item);
   if (!rows) return null;
-  return {
-    related: rows.map((row) => ({
-      icon: row.icon,
-      name: row.name,
-      price: findPriceByQueryId(`${row.ns}::${row.ref}`),
-      highlight: row.ref === item.info.refName,
-    })),
-    items: [] as Array<{ name: string; icon: string; price?: CurrencyValue }>,
-  };
+  const cells: FamilyCell[] = rows.map((row) => ({
+    icon: row.icon,
+    name: row.name,
+    price: findPriceByQueryId(`${row.ns}::${row.ref}`),
+    highlight: row.ref === item.info.refName,
+  }));
+  if (cells.length > MAX_SINGLE_COLUMN_ROWS) {
+    const half = Math.ceil(cells.length / 2);
+    return {
+      related: cells.slice(0, half),
+      items: cells.slice(half),
+      wide: true,
+    };
+  }
+  return { related: cells, items: [] as FamilyCell[] };
 }
 
 export default defineComponent({
@@ -182,7 +212,14 @@ export default defineComponent({
       );
     });
 
-    return { result };
+    // Large families (e.g. the ~28 Ritual omens) render across both columns in
+    // a wider panel so they all fit on-screen at once.
+    const isWide = computed(() => {
+      const r = result.value;
+      return !!(r && "wide" in r && r.wide);
+    });
+
+    return { result, isWide };
   },
 });
 </script>
@@ -194,6 +231,12 @@ export default defineComponent({
   @apply border border-gray-900;
   border-width: 0.25rem;
   max-width: min(100%, 24rem);
+}
+
+/* Two-column families (e.g. the ~28 Ritual omens) need more width so the long
+   names in each half-width column stay readable. */
+.wide {
+  max-width: min(100%, 36rem);
 }
 
 .inventory {
